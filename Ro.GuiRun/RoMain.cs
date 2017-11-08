@@ -32,7 +32,7 @@ namespace Ro.GuiRun
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SelectFile_Click(object sender, System.EventArgs e)
+        private void SelectFile_Click(object sender, EventArgs e)
         {
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "准备勾选ros/roi/roc文件夹...");
             SelectFiles selectFiles = new SelectFiles();
@@ -80,7 +80,7 @@ namespace Ro.GuiRun
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Start_Click(object sender, System.EventArgs e)
+        private void Start_Click(object sender, EventArgs e)
         {
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "脚本执行工具准备开始执行脚本...");
             ResultView.Items.Clear(); //清除结果view
@@ -129,7 +129,7 @@ namespace Ro.GuiRun
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OneKey_Click(object sender, System.EventArgs e)
+        private void OneKey_Click(object sender, EventArgs e)
         {
             //弹出文件夹选择框
             FolderBrowserDialog fbd = new FolderBrowserDialog

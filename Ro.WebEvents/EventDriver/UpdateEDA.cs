@@ -72,7 +72,7 @@ namespace Ro.WebEvents.EventDriver
             _updateAction = updateAction;
             //提取超时
             TimeSpan timeSpan = TimeSpan.FromSeconds(_updateAction.Timeout);
-            _webDriverWait = new WebDriverWait(Common.Args.ComArgs.WebTestDriver, timeSpan);
+            _webDriverWait = new WebDriverWait(ComArgs.WebTestDriver, timeSpan);
         }
     }
 }
