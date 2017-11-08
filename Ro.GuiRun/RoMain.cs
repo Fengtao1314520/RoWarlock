@@ -13,6 +13,8 @@ using Ro.GuiRun.Resource;
 
 namespace Ro.GuiRun
 {
+
+    /**/
     public partial class RoMain : DMSkinForm
     {
         public RoMain()
