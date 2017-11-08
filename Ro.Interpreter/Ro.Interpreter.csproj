@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7F41F0C7-93D3-4449-A36D-33E9B85AA4A2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Ro.Interpreter</RootNamespace>
+    <AssemblyName>Ro.Interpreter</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DotNetZip, Version=1.10.1.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
+      <HintPath>..\packages\DotNetZip.1.10.1\lib\net20\DotNetZip.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WebDriver, Version=3.5.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.3.5.2\lib\net40\WebDriver.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConfigsCore\ConfigEntrance.cs" />
+    <Compile Include="ElementsCore\ElementReference.cs" />
+    <Compile Include="Resources\DriverRes.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DriverRes.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ScriptsCore\InterAssistFunc\ObjectAssist\AnnotationEvents.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\ObjectAssist\CloseAppEvents.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\ObjectAssist\LogFunctionEvents.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\ObjectAssist\StartAppEvents.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\ObjectAssist\TestConfigEvents.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\ObjectAssist\TestsEvents.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\PublicInterface\ExtractWebAction.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\XElementToObject\AnnotationNodes.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\XElementToObject\CloseAppNodes.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\XElementToObject\LogFunctionNodes.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\XElementToObject\StartAppNodes.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\XElementToObject\TestConfigNodes.cs" />
+    <Compile Include="ScriptsCore\InterAssistFunc\XElementToObject\TestsNodes.cs" />
+    <Compile Include="ScriptsCore\LogicCores\ExecuteLogicQueue.cs" />
+    <Compile Include="ElementsCore\ElementEntrance.cs" />
+    <Compile Include="ScriptsCore\ScriptEntrance.cs" />
+    <Compile Include="MainEntrance.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Resources\BroDriver.zip" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ro.Assist\Ro.Assist.csproj">
+      <Project>{95017198-fb1c-4307-b713-dbd02dbaf147}</Project>
+      <Name>Ro.Assist</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ro.Common\Ro.Common.csproj">
+      <Project>{3d906c2c-b7ca-491a-8702-7c7fa9d46fdb}</Project>
+      <Name>Ro.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ro.WebEvents\Ro.WebEvents.csproj">
+      <Project>{e954b4e0-6bb0-4449-bbda-3c40e6070122}</Project>
+      <Name>Ro.WebEvents</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\DriverRes.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DriverRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
