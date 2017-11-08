@@ -23,7 +23,6 @@ namespace Ro.GuiRun
             ComArgs.RoLog.CreateLog("RoUIA"); //创建log
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "脚本执行工具正式开始工作..."); //起始log语句
 
-            //this.WindowState = FormWindowState.Maximized;
         }
 
 
