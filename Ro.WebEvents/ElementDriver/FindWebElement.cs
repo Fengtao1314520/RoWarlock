@@ -78,7 +78,7 @@ namespace Ro.WebEvents.ElementDriver
                 ReadOnlyCollection<IWebElement> eles = GetWebElesInHtml(sigEle.Locator, sigEle.Value);
                 if (eles == null || eles.Count == 0)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LFail, $"FindSigEle查询到0个控件,控件:{sigEle.Value}");
+                    ComArgs.RoLog.WriteLog(LogStatus.LFail, $"FindSigEle查询到0个控件,控件:{sigEle.Value}");
                 }
                 else
                 {
@@ -97,7 +97,7 @@ namespace Ro.WebEvents.ElementDriver
             }
             catch (Exception e)
             {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"私有方法FindSigEle发生异常,sigID:{sigEle.Id}", e.ToString());
+                ComArgs.RoLog.WriteLog(LogStatus.LExpt, $"私有方法FindSigEle发生异常,sigID:{sigEle.Id}", e.ToString());
             }
 
             return sigElement;
@@ -116,7 +116,7 @@ namespace Ro.WebEvents.ElementDriver
                 ReadOnlyCollection<IWebElement> eles = GetWebElesInHtml(cpxEle.HeadLocator, value);
                 if (eles == null || eles.Count == 0)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LFail, $"FindCpxEle查询到0个控件,FindCpxEle,父值:{cpxEle.HeadValue},子值:{cpxEle.Value}");
+                    ComArgs.RoLog.WriteLog(LogStatus.LFail, $"FindCpxEle查询到0个控件,FindCpxEle,父值:{cpxEle.HeadValue},子值:{cpxEle.Value}");
                 }
                 else
                 {
@@ -135,7 +135,7 @@ namespace Ro.WebEvents.ElementDriver
             }
             catch (Exception e)
             {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"私有方法FindCpxEle发生异常,cpxID:{cpxEle.Id}", e.ToString());
+                ComArgs.RoLog.WriteLog(LogStatus.LExpt, $"私有方法FindCpxEle发生异常,cpxID:{cpxEle.Id}", e.ToString());
             }
 
             return cpxElement;
@@ -189,12 +189,12 @@ namespace Ro.WebEvents.ElementDriver
             }
             catch (WebDriverTimeoutException)
             {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"私有方法GetWebElesInHtml(2参数)查找控件超时,给定的Value值:{value}");
+                ComArgs.RoLog.WriteLog(LogStatus.LExpt, $"私有方法GetWebElesInHtml(2参数)查找控件超时,给定的Value值:{value}");
                 return null;
             }
             catch (Exception e)
             {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, "私有方法GetWebElesInHtml(2参数)发生异常", e.ToString());
+                ComArgs.RoLog.WriteLog(LogStatus.LExpt, "私有方法GetWebElesInHtml(2参数)发生异常", e.ToString());
                 return null;
             }
         }

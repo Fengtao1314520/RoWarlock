@@ -1,25 +1,35 @@
 ﻿using System;
+using System.Xml;
 using System.Xml.Linq;
 using Ro.Common.Args;
 using Ro.Common.EnumType;
 using Ro.Common.UserType.ActionType;
+using Ro.Common.UserType.ScriptsLogicType;
 
 namespace Ro.Interpreter.ScriptsCore.InterAssistFunc.PublicInterface
 {
     /// <summary>
     /// 提取WebAction
+    /// Update 2017/11/09 大更新
     /// </summary>
     public class ExtractWebAction
     {
-        public WebAction ExtractWeb { get; }
+        public TestStep ExtractWeb { get; }
 
         /// <summary>
         /// 构造函数
         /// 提取WebAction
         /// <param name="sigXElement">一个单独的节点</param>
         /// </summary>
-        public ExtractWebAction(XElement sigXElement)
+        public ExtractWebAction(XElement sigXElement,string caseid)
         {
+            ExtractWeb = new TestStep();
+
+            ExtractWeb.CaseName = caseid;//ID即为case名称
+            IXmlLineInfo info = sigXElement;
+            ExtractWeb.LineNum  = info.LineNumber;
+
+
             try
             {
                 WebAction backAction = new WebAction
@@ -69,7 +79,8 @@ namespace Ro.Interpreter.ScriptsCore.InterAssistFunc.PublicInterface
                 {
                     backAction.Action = new ScrollAction(sigXElement);
                 }
-                ExtractWeb = backAction;
+                ExtractWeb.WebAction = backAction;
+                
             }
             catch (Exception e)
             {

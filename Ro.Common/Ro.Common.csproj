@@ -57,7 +57,7 @@
     <Compile Include="UserType\ActionType\WebActionTypes.cs" />
     <Compile Include="UserType\ConfigType\ConfTypes.cs" />
     <Compile Include="UserType\ElementType\WebEleTypes.cs" />
-    <Compile Include="UserType\GuiType\GuiType.cs" />
+    <Compile Include="UserType\GuiType\GuiUsePath.cs" />
     <Compile Include="UserType\ScriptsLogicType\AnnotationType.cs" />
     <Compile Include="UserType\ScriptsLogicType\CloseAppType.cs" />
     <Compile Include="UserType\ScriptsLogicType\LogFunctionType.cs" />

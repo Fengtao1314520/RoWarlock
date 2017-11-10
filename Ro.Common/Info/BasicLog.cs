@@ -1,18 +1,9 @@
 ﻿using System;
 using System.IO;
+using Ro.Common.EnumType;
+using Ro.Common.UserType.ScriptsLogicType;
 
 
-/*
- * LOG的方法类
- * log的形式
- * 
- * [时间]
- * [状态] Pass,Fail,Info,Debug
- * [类名]
- * [信息]
- * [其他信息]
- * 
- */
 namespace Ro.Common.Info
 {
     /// <summary>
@@ -27,15 +18,24 @@ namespace Ro.Common.Info
         /// </summary>
         private string _filename;
 
+        /// <summary>
+        /// log文件夹
+        /// </summary>
         private readonly string _logFolder;
 
         /// <summary>
         /// log文件路径
-        /// 3248589880
         /// </summary>
         private string _filepath;
 
+        /// <summary>
+        /// log流
+        /// </summary>
         private FileStream _logStream;
+
+        /// <summary>
+        /// log文件信息
+        /// </summary>
         private FileInfo _logFileInfo;
 
         #endregion
@@ -57,8 +57,8 @@ namespace Ro.Common.Info
                 Directory.CreateDirectory($"{back}/ToolLog");
                 Directory.CreateDirectory($"{back}/ActionLog");
             }
-            
         }
+
 
         #region 私有方法
 
@@ -82,6 +82,16 @@ namespace Ro.Common.Info
                 }
                 _logFileInfo.Delete(); //删除原文件
             }
+
+            //清空Image
+            string imagepath = $"{_logFolder}/Image";
+            if (Directory.Exists(imagepath))
+            {
+                Directory.Delete(imagepath, true);
+            }
+            Directory.CreateDirectory(imagepath);
+
+
             _logStream = File.Create(_filepath);
             _logStream.Close();
             _logFileInfo = new FileInfo(_filepath);
@@ -102,6 +112,7 @@ namespace Ro.Common.Info
             CheckLogFile(); //检查Log
         }
 
+
         /// <summary>
         /// 写log
         /// <para>标准</para>
@@ -121,8 +132,8 @@ namespace Ro.Common.Info
                 streamWriter.BaseStream.Seek(0, SeekOrigin.End);
                 string log = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} " +
                              $"{status} " +
-                             $"{message}\r\n"+
-                             $"{extrainfo}"+
+                             $"{message}\r\n" +
+                             $"{extrainfo}\r\n" +
                              $"{Environment.NewLine}";
 
                 //写入日志
@@ -152,9 +163,8 @@ namespace Ro.Common.Info
                 streamWriter.BaseStream.Seek(0, SeekOrigin.End);
                 string log = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} " +
                              $"{status} " +
-                             $"{message}\n";
-                             //"======================================================================="+
-                             //$"{Environment.NewLine}";
+                             $"{message}\r\n" +
+                             $"{Environment.NewLine}";
 
                 //写入日志
                 streamWriter.Write(log);
@@ -165,6 +175,81 @@ namespace Ro.Common.Info
             }
         }
 
+        /// <summary>
+        /// 写log
+        /// 写入OutPutInfo状态的信息
+        /// </summary>
+        /// <param name="status">状态</param>
+        /// <param name="sigTestStep">信息</param>
+        public void WriteLog(string status, TestStep sigTestStep)
+        {
+            //基本使用此类的都是涉及weblog输出
+            lock (_logFileInfo)
+            {
+                _logStream = _logFileInfo.OpenWrite();
+                //根据上面创建的文件流创建写数据流
+                StreamWriter streamWriter = new StreamWriter(_logStream);
+                streamWriter.AutoFlush = true;
+                //设置写数据流的起始位置为文件流的末尾
+                streamWriter.BaseStream.Seek(0, SeekOrigin.End);
+                string log = $"操作时间:{DateTime.Now:yyyy-MM-dd HH:mm:ss}\r\n" +
+                             $"操作结果:{status}\r\n" +
+                             $"Case名称:{sigTestStep.CaseName}   " +
+                             $"行号:{sigTestStep.LineNum}   " +
+                             $"操作名称:{sigTestStep.StepName}   " +
+                             $"使用控件:{sigTestStep.ControlId}  " +
+                             $"执行结果:{sigTestStep.ResultStr}\r\n" +
+                             $"其他信息:{sigTestStep.ExtraInfo}\r\n" +
+                             $"{Environment.NewLine}";
+
+                //写入日志
+                streamWriter.Write(log);
+                //清空缓冲区内容，并把缓冲区内容写入基础流
+                streamWriter.Flush();
+                //关闭写数据流
+                streamWriter.Close();
+            }
+        }
+
+        /// <summary>
+        /// 写log
+        /// 写入OutPutInfo状态的信息
+        /// 异常
+        /// </summary>
+        /// <param name="sigTestStep">信息</param>
+        public void WriteExptLog(TestStep sigTestStep)
+        {
+            //基本使用此类的都是涉及weblog输出
+            lock (_logFileInfo)
+            {
+                _logStream = _logFileInfo.OpenWrite();
+                //根据上面创建的文件流创建写数据流
+                StreamWriter streamWriter = new StreamWriter(_logStream);
+                streamWriter.AutoFlush = true;
+                //设置写数据流的起始位置为文件流的末尾
+                streamWriter.BaseStream.Seek(0, SeekOrigin.End);
+                string log = $"操作时间:{DateTime.Now:yyyy-MM-dd HH:mm:ss}\r\n" +
+                             $"操作结果:{LogStatus.LExpt}\r\n" +
+                             $"Case名称:{sigTestStep.CaseName}   " +
+                             $"行号:{sigTestStep.LineNum}   " +
+                             $"操作名称:{sigTestStep.StepName}   " +
+                             $"使用控件:{sigTestStep.ControlId}  " +
+                             $"执行结果:{sigTestStep.ResultStr}\r\n" +
+                             $"其他信息:{sigTestStep.ExtraInfo}\r\n" +
+                             "=======================================================================\r\n" +
+                             $"Message:{sigTestStep.Message}\r\n" +
+                             $"FullName:{sigTestStep.FullName}\r\n" +
+                             $"StackTrace:{sigTestStep.StackTrace}\r\n" +
+                             $"{Environment.NewLine}";
+
+                //写入日志
+                streamWriter.Write(log);
+                //清空缓冲区内容，并把缓冲区内容写入基础流
+                streamWriter.Flush();
+                //关闭写数据流
+                streamWriter.Close();
+            }
+        }
 
         /// <summary>
         /// 清理托管内存

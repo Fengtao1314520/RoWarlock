@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Linq;
 using Ro.Common.Args;
-using Ro.Common.UserType.ActionType;
 using Ro.Common.UserType.ScriptsLogicType;
 using Ro.Interpreter.ScriptsCore.InterAssistFunc.PublicInterface;
 
@@ -9,13 +8,13 @@ namespace Ro.Interpreter.ScriptsCore.InterAssistFunc.XElementToObject
 {
     /// <summary>
     /// tests节点信息
+    /// 修改
     /// </summary>
     public class TestsNodes
     {
         #region 只读Get值
 
         public TestsType TestsType_Info { get; }
-        
 
         #endregion
 
@@ -34,35 +33,19 @@ namespace Ro.Interpreter.ScriptsCore.InterAssistFunc.XElementToObject
             };
             foreach (XElement element in testsXElement.Elements(XName.Get("TestCase", ComArgs.RosStr)))
             {
-                TestCase testCase = new TestCase();
-
-                //annotationXElement节点
-                XElement annotationXElement = element.Element(XName.Get("Annotation", ComArgs.RosStr));
-                AnnotationType annotationType = new AnnotationType
+                TestCase testCase = new TestCase
                 {
-                    Description = annotationXElement?.Element(XName.Get("Description", ComArgs.RosStr))?.Value,
-                    Created = new AuthorData
-                    {
-                        Author = annotationXElement?.Element(XName.Get("Created", ComArgs.RosStr))?.Attribute(XName.Get("Author", ComArgs.RosStr))?.Value,
-                        Data = annotationXElement?.Element(XName.Get("Created", ComArgs.RosStr))?.Attribute(XName.Get("Date", ComArgs.RosStr))?.Value
-                    },
-                    LastUpdated = new AuthorData
-                    {
-                        Author = annotationXElement?.Element(XName.Get("LastUpdated", ComArgs.RosStr))?.Attribute(XName.Get("Author", ComArgs.RosStr))?.Value,
-                        Data = annotationXElement?.Element(XName.Get("LastUpdated", ComArgs.RosStr))?.Attribute(XName.Get("Date", ComArgs.RosStr))?.Value
-                    }
-                };
-                testCase.Annotation = annotationType;
-
-                //给定Id值
-                testCase.Id = element.Attribute(XName.Get("ID", ComArgs.RosStr))?.Value;
+                    Id = element.Attribute(XName.Get("ID", ComArgs.RosStr))?.Value, //给定Id值
+                    TestSteps = new Queue<TestStep>()
+                }; //直接放弃了annotation
 
                 //绑定一个testcase的步骤
-                testCase.TestSteps = new Queue<WebAction>();
-                foreach (XElement onestep in element.Element(XName.Get("TestSteps", ComArgs.RosStr)).Elements())
-                {
-                    testCase.TestSteps.Enqueue(new ExtractWebAction(onestep).ExtractWeb);
-                }
+                XElement xElement = element.Element(XName.Get("TestSteps", ComArgs.RosStr));
+                if (xElement != null)
+                    foreach (XElement onestep in xElement.Elements())
+                    {
+                        testCase.TestSteps.Enqueue(new ExtractWebAction(onestep, testCase.Id).ExtractWeb);
+                    }
 
 
                 //添加
@@ -74,10 +57,5 @@ namespace Ro.Interpreter.ScriptsCore.InterAssistFunc.XElementToObject
         }
 
         #endregion
-
-
-
-
-       
     }
 }

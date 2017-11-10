@@ -57,7 +57,8 @@ namespace Ro.Interpreter
                 //1.解析tcs文件
 
                 //读取tcs文件
-                XDocument tcsDocument = XDocument.Load(rospath);
+                XDocument tcsDocument = XDocument.Load(rospath,LoadOptions.SetLineInfo);
+               
                 //提取根节点
                 XElement rootElement = tcsDocument.Element(XName.Get("TestDefinition", ComArgs.RosStr));
 

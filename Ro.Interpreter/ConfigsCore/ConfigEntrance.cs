@@ -4,13 +4,11 @@ using System.IO;
 using System.Xml.Linq;
 using Ro.Common.Args;
 using Ro.Common.EnumType;
-using Ro.Common.UserType.ActionType;
+using Ro.Common.UserType.ScriptsLogicType;
 using Ro.Interpreter.ScriptsCore.InterAssistFunc.PublicInterface;
 
 namespace Ro.Interpreter.ConfigsCore
 {
-
-
     /// <summary>
     /// 配置文件解析入口
     /// </summary>
@@ -27,13 +25,9 @@ namespace Ro.Interpreter.ConfigsCore
 
 
         #region 对应字典
-        
-        
-            public Dictionary<string, string> PropertiesDic { get;  }
-            public Dictionary<string, Queue<WebAction>> MacroDic { get;  }
-        
 
-        
+        public Dictionary<string, string> PropertiesDic { get; }
+        public Dictionary<string, Queue<TestStep>> MacroDic { get; }
 
         #endregion
 
@@ -47,10 +41,9 @@ namespace Ro.Interpreter.ConfigsCore
         /// <param name="configpath">单个配置文件入口</param>
         public ConfigEntrance(string configpath)
         {
-
             PropertiesDic = new Dictionary<string, string>();
-            MacroDic = new Dictionary<string, Queue<WebAction>>();
-            
+            MacroDic = new Dictionary<string, Queue<TestStep>>();
+
 
             try
             {
@@ -61,7 +54,7 @@ namespace Ro.Interpreter.ConfigsCore
                 if (execname.ToLower().Equals(".roc") || execname.ToLower().Equals(".tcc"))
                 {
                     //读取配置文件
-                    XDocument confDocument = XDocument.Load(configpath);
+                    XDocument confDocument = XDocument.Load(configpath,LoadOptions.SetLineInfo);
                     //提取根节点
                     XElement rootElement = confDocument.Element(XName.Get("Config", ComArgs.RocStr));
 
@@ -72,9 +65,9 @@ namespace Ro.Interpreter.ConfigsCore
                 }
 
                 //解析完单个文件，提取XElement后，需要转为字典
-                
+
                 //判断各个XElement是否为null
-                if (_properties !=null)
+                if (_properties != null)
                 {
                     foreach (XElement sig in _properties.Elements(XName.Get("Property", ComArgs.RosStr)))
                     {
@@ -83,20 +76,21 @@ namespace Ro.Interpreter.ConfigsCore
                         if (id != null) PropertiesDic.Add(id, value);
                     }
                 }
-                if (_macros!=null)
+                if (_macros != null)
                 {
                     foreach (XElement sig in _macros.Elements(XName.Get("Macro", ComArgs.RocStr)))
                     {
-                        Queue<WebAction> queue = new Queue<WebAction>();
+                        Queue<TestStep> queue = new Queue<TestStep>();
                         string id = sig.Attribute(XName.Get("ID", ComArgs.RocStr))?.Value;
-                        foreach (XElement temp in sig.Element(XName.Get("MacroActivities",ComArgs.RocStr)).Elements())
-                        {
-                            queue.Enqueue(new ExtractWebAction(temp).ExtractWeb); 
-                        }
+                        var elements = sig.Element(XName.Get("MacroActivities", ComArgs.RocStr))?.Elements();
+                        if (elements != null)
+                            foreach (XElement temp in elements)
+                            {
+                                queue.Enqueue(new ExtractWebAction(temp, id).ExtractWeb);
+                            }
                         if (id != null) MacroDic.Add(id, queue);
                     }
                 }
-
             }
             catch (Exception e)
             {

@@ -4,6 +4,7 @@ using System.Reflection;
 using Ro.Common.Args;
 using Ro.Common.EnumType;
 using Ro.Common.UserType.ActionType;
+using Ro.Common.UserType.ScriptsLogicType;
 
 namespace Ro.WebEvents.EventDriver
 {
@@ -20,7 +21,7 @@ namespace Ro.WebEvents.EventDriver
         /// <summary>
         /// Macro本质上依然是一种teststeps的集合，因此依然不断解析对应步骤
         /// </summary>
-        public Queue<WebAction> Macro
+        public Queue<TestStep> Macro
         {
             get
             {
@@ -31,7 +32,7 @@ namespace Ro.WebEvents.EventDriver
                 }
                 catch (Exception e)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    ComArgs.RoLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return null;
                 }
                

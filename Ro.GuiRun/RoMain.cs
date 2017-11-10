@@ -13,16 +13,15 @@ using Ro.GuiRun.Resource;
 
 namespace Ro.GuiRun
 {
-
     public partial class RoMain : DMSkinForm
     {
+        Point pointView = new Point(0, 0); //位置
         public RoMain()
         {
             InitializeComponent();
             InitRosTreeIcon.RosTreeIcon(RosTree); //初始化图片资源
             ComArgs.RoLog.CreateLog("RoUIA"); //创建log
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "脚本执行工具正式开始工作..."); //起始log语句
-
         }
 
 
@@ -37,7 +36,7 @@ namespace Ro.GuiRun
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "准备勾选ros/roi/roc文件夹...");
             SelectFiles selectFiles = new SelectFiles();
             selectFiles.ShowDialog(); //执行完毕后，再更新rostree
-            GetAllRosFile getAllRosFile = new GetAllRosFile(ComArgs.GuiType.RosPath);
+            GetAllRosFile getAllRosFile = new GetAllRosFile(ComArgs.GuiUsePath.RosPath);
             RosTree.Nodes.Add(getAllRosFile.RootNode);
             RosTree.ExpandAll(); //全展开
             CheckTreeView.CheckAllTreeNodes(getAllRosFile.RootNode); //默认全部勾选
@@ -111,7 +110,7 @@ namespace Ro.GuiRun
         private void RunT(object rootNode)
         {
             GuiViewEvent.UiViewResult += ChangeResult; //绑定事件
-            GuiViewEvent.UiViewSteps += ChangeView;//绑定事件
+            GuiViewEvent.UiViewSteps += ChangeView; //绑定事件
 
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "脚本执行工具执行GuiCore方法...");
             GuiCore guiCore = new GuiCore(rootNode as TreeNode); //正式开始执行脚本
@@ -120,7 +119,7 @@ namespace Ro.GuiRun
             GC.Collect(); //释放资源
 
             GuiViewEvent.UiViewResult -= ChangeResult; //解绑事件
-            GuiViewEvent.UiViewSteps -= ChangeView;//解绑事件
+            GuiViewEvent.UiViewSteps -= ChangeView; //解绑事件
         }
 
 
@@ -139,13 +138,13 @@ namespace Ro.GuiRun
             };
             if (fbd.ShowDialog() == DialogResult.OK || fbd.ShowDialog() == DialogResult.Yes)
             {
-                ComArgs.GuiType = new GuiType
+                ComArgs.GuiUsePath = new GuiUsePath
                 {
                     RosPath = $"{fbd.SelectedPath}/Scripts",
                     RoiPath = $"{fbd.SelectedPath}/UIMaps",
                     RocPath = $"{fbd.SelectedPath}/Config"
                 };
-                GetAllRosFile getAllRosFile = new GetAllRosFile(ComArgs.GuiType.RosPath);
+                GetAllRosFile getAllRosFile = new GetAllRosFile(ComArgs.GuiUsePath.RosPath);
                 RosTree.Nodes.Add(getAllRosFile.RootNode);
                 RosTree.ExpandAll(); //全展开
                 CheckTreeView.CheckAllTreeNodes(getAllRosFile.RootNode); //默认全部勾选
@@ -176,17 +175,17 @@ namespace Ro.GuiRun
             {
                 ListViewItem lvi = ResultView.Items.Add((ResultView.Items.Count + 1) + "");
                 lvi.UseItemStyleForSubItems = false;
-                if (item.Result=="失败")
+                if (item.ResultStr == "失败")
                 {
-                    lvi.BackColor=Color.Red;
+                    lvi.BackColor = Color.Red;
                 }
                 else
                 {
-                    lvi.BackColor=Color.LimeGreen;
+                    lvi.BackColor = Color.LimeGreen;
                 }
                 lvi.SubItems.Add(item.StepName);
                 lvi.SubItems.Add(item.ControlId);
-                lvi.SubItems.Add(item.Result);
+                lvi.SubItems.Add(item.ResultStr);
                 lvi.SubItems.Add(item.ExtraInfo);
                 lvi.EnsureVisible();
             }
@@ -199,7 +198,6 @@ namespace Ro.GuiRun
         /// <param name="item"></param>
         private void ChangeResult(object sender, UResultType item)
         {
-
             if (GuiStrip.InvokeRequired)
             {
                 GuiViewEvent.ViewResult invokeResult = ChangeResult;
@@ -212,9 +210,35 @@ namespace Ro.GuiRun
                 FailSteps.Text = $@"失败步骤数:{item.FailNums}";
                 SucCover.Text = $@"成功率:{item.Cover}%";
             }
-
         }
 
         #endregion
+
+
+        /// <summary>
+        /// 鼠标移动事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ResultView_MouseMove(object sender, MouseEventArgs e)
+        {
+            ListViewItem lvi = ResultView.GetItemAt(e.X, e.Y);
+            if (lvi != null)
+            {
+              
+                if (pointView.X != e.X || pointView.Y != e.Y) //防止闪烁
+                {
+                    ResultTip.Show("Test", ResultView, new Point(e.X, e.Y), 1000);
+                    pointView.X = e.X;
+                    pointView.Y = e.Y;
+                    ResultTip.Active = true;
+                }
+                else
+                {
+                    ResultTip.Hide(ResultView);
+                    pointView = new Point(e.X, e.Y);
+                }
+            }
+        }
     }
 }

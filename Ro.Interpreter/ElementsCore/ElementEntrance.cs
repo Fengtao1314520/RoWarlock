@@ -60,11 +60,11 @@ namespace Ro.Interpreter.ElementsCore
                 //如果文件不存在，说明可能就不存在，或简写为文件名，而不是全路径，也需要区别对待(暂未开发)
                 else
                 {
-                    if (!string.IsNullOrEmpty(ComArgs.GuiType.RoiPath))
+                    if (!string.IsNullOrEmpty(ComArgs.GuiUsePath.RoiPath))
                     {
                         //如果值存在
-                        string path = $"{ComArgs.GuiType.RoiPath}/{noargspath}"; //文件路径
-                        ComArgs.RoLog.WriteLog(LogStatus.LDeb, $"ElementEntrance中当前处理的路径为:{path}");
+                        string path = $"{ComArgs.GuiUsePath.RoiPath}/{noargspath}"; //文件路径
+                        ComArgs.RoLog.WriteLog(LogStatus.LInfo, $"ElementEntrance中当前处理的路径为:{path}");
                         //开始查找对应的文件
                         fileInfo = new FileInfo(path);
                         //如果文件存在

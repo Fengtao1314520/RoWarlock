@@ -3,8 +3,8 @@ using System.Reflection;
 using OpenQA.Selenium.Support.UI;
 using Ro.Assist.AssistBot;
 using Ro.Common.Args;
-using Ro.Common.EnumType;
 using Ro.Common.UserType.ActionType;
+using Ro.Common.UserType.ScriptsLogicType;
 
 namespace Ro.WebEvents.EventDriver
 {
@@ -15,6 +15,8 @@ namespace Ro.WebEvents.EventDriver
     {
         private readonly WebDriverWait _webDriverWait;
         private readonly AlertAction _alertAction;
+        private readonly GuiViewEvent _guiViewEvent = new GuiViewEvent();
+
 
 
         #region 只读Get方法
@@ -23,16 +25,31 @@ namespace Ro.WebEvents.EventDriver
         {
             get
             {
+                
                 try
                 {
                     _webDriverWait.Until(ExpectedConditions.AlertIsPresent()).Accept();
 
+                    ComArgs.SigTestStep.ResultStr = "成功";
+                    ComArgs.SigTestStep.Result = true;
+                    ComArgs.SigTestStep.ExtraInfo = "N/A";
                     return true;
                 }
                 catch (Exception e)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    ComArgs.SigTestStep.ResultStr = "异常";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                    ComArgs.SigTestStep.Message = e.Message;
+                    ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                    ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
                     return false;
+                }
+                finally
+                {
+                    ComArgs.SigTestStep.StepName = _alertAction.ActionType;
+                    ComArgs.SigTestStep.ControlId = "未使用";
+                    _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
                 }
             }
         }
@@ -42,15 +59,31 @@ namespace Ro.WebEvents.EventDriver
         {
             get
             {
+               
                 try
                 {
                     _webDriverWait.Until(ExpectedConditions.AlertIsPresent()).Dismiss();
+
+                    ComArgs.SigTestStep.ResultStr = "成功";
+                    ComArgs.SigTestStep.Result = true;
+                    ComArgs.SigTestStep.ExtraInfo = "N/A";
                     return true;
                 }
                 catch (Exception e)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    ComArgs.SigTestStep.ResultStr = "异常";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                    ComArgs.SigTestStep.Message = e.Message;
+                    ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                    ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
                     return false;
+                }
+                finally
+                {
+                    ComArgs.SigTestStep.StepName = _alertAction.ActionType;
+                    ComArgs.SigTestStep.ControlId = "未使用";
+                    _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
                 }
             }
         }
@@ -60,18 +93,34 @@ namespace Ro.WebEvents.EventDriver
         {
             get
             {
+                
                 try
                 {
                     ArgsIntoValue argsIntoValue = new ArgsIntoValue();
                     string value = argsIntoValue.BackNormalString(_alertAction.SendKeysValue);
                     _webDriverWait.Until(ExpectedConditions.AlertIsPresent()).SendKeys(value);
 
+                    ComArgs.SigTestStep.ResultStr = "成功";
+                    ComArgs.SigTestStep.Result = true;
+                    ComArgs.SigTestStep.ExtraInfo = "N/A";
+
                     return true;
                 }
                 catch (Exception e)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    ComArgs.SigTestStep.ResultStr = "异常";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                    ComArgs.SigTestStep.Message = e.Message;
+                    ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                    ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
                     return false;
+                }
+                finally
+                {
+                    ComArgs.SigTestStep.StepName = _alertAction.ActionType;
+                    ComArgs.SigTestStep.ControlId = "未使用";
+                    _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
                 }
             }
         }
@@ -84,13 +133,16 @@ namespace Ro.WebEvents.EventDriver
         /// 构造函数
         /// 实体使用方法
         /// </summary>
-        /// <param name="alertAction">alert操作</param>
-        public AlertEDA(AlertAction alertAction)
+        /// <param name="alertTestStep">alert步骤所有信息</param>
+        public AlertEDA(TestStep alertTestStep)
         {
-            _alertAction = alertAction;
-            //提取超时
-            TimeSpan timeSpan = TimeSpan.FromSeconds(_alertAction.Timeout);
-            _webDriverWait = new WebDriverWait(ComArgs.WebTestDriver, timeSpan);
+            _alertAction = alertTestStep.WebAction.Action as AlertAction;
+            ComArgs.SigTestStep = alertTestStep;
+            if (_alertAction != null)
+            {
+                TimeSpan timeSpan = TimeSpan.FromSeconds(_alertAction.Timeout); //提取超时
+                _webDriverWait = new WebDriverWait(ComArgs.WebTestDriver, timeSpan);
+            }
         }
     }
 }

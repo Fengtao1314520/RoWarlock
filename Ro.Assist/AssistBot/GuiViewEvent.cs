@@ -1,4 +1,7 @@
-﻿using Ro.Common.UserType.GuiType;
+﻿using Ro.Common.Args;
+using Ro.Common.EnumType;
+using Ro.Common.UserType.GuiType;
+using Ro.Common.UserType.ScriptsLogicType;
 
 namespace Ro.Assist.AssistBot
 {
@@ -13,7 +16,7 @@ namespace Ro.Assist.AssistBot
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="item">UViewType</param>
-        public delegate void ViewSteps(object sender, UViewType item);
+        public delegate void ViewSteps(object sender, TestStep item);
 
 
         /// <summary>
@@ -43,8 +46,25 @@ namespace Ro.Assist.AssistBot
         /// 显示步骤
         /// </summary>
         /// <param name="item">UViewType</param>
-        public  void OnUiViewSteps(UViewType item)
+        public void OnUiViewSteps(TestStep item)
         {
+
+            if (item.ResultStr=="异常")
+            {
+                ComArgs.WebLog.WriteExptLog(item);
+            }
+            else
+            {
+                if (item.Result)
+                {
+                    ComArgs.WebLog.WriteLog(LogStatus.LPass,item);
+                }
+                else
+                {
+                    ComArgs.WebLog.WriteLog(LogStatus.LFail,item);
+                }
+            }
+
             UiViewSteps?.Invoke(null, item);
         }
 
@@ -54,7 +74,7 @@ namespace Ro.Assist.AssistBot
         /// 显示结果
         /// </summary>
         /// <param name="item">UResultType</param>
-        public  void OnUiViewResult(UResultType item)
+        public void OnUiViewResult(UResultType item)
         {
             UiViewResult?.Invoke(null, item);
         }

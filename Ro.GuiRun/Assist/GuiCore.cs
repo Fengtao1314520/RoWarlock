@@ -4,8 +4,8 @@ using System.IO;
 using System.Windows.Forms;
 using Ro.Common.Args;
 using Ro.Common.EnumType;
-using Ro.Common.UserType.ActionType;
 using Ro.Common.UserType.GuiType;
+using Ro.Common.UserType.ScriptsLogicType;
 using Ro.Interpreter;
 using Ro.Interpreter.ConfigsCore;
 
@@ -15,12 +15,12 @@ namespace Ro.GuiRun.Assist
     {
         public GuiCore(TreeNode rootNode)
         {
-            //初始化UResultType
+            //初始化UResultType，在UI启动一次后不再做初始化
             ComArgs.ResultType = new UResultType();
-            //初始化UViewType
-            ComArgs.ViewType = new UViewType();
+            //初始化UResultType，在UI启动一次后不再做初始化
+            ComArgs.SigTestStep = new TestStep();
 
-            RunSelectedRos(rootNode, ComArgs.GuiType.RosPath); //正式执行脚本
+            RunSelectedRos(rootNode, ComArgs.GuiUsePath.RosPath); //正式执行脚本
         }
 
 
@@ -53,14 +53,14 @@ namespace Ro.GuiRun.Assist
                         ComArgs.UseRosName = Path.GetFileNameWithoutExtension(newpath);
 
                         ComArgs.RoLog.WriteLog(LogStatus.LInfo, "===========================================================");
-                        ComArgs.RoLog.WriteLog(LogStatus.LInfo, $"{newpath}\r\n开始执行...");
+                        ComArgs.RoLog.WriteLog(LogStatus.LInfo, $"          脚本{ComArgs.UseRosName}开始执行...");
                         ComArgs.RoLog.WriteLog(LogStatus.LInfo, "===========================================================");
-                        AnalysisRoc(ComArgs.GuiType.RocPath); //解析配置文件
+                        AnalysisRoc(ComArgs.GuiUsePath.RocPath); //解析配置文件
                         //执行脚本
                         MainEntrance mainEntrance = new MainEntrance(newpath);
 
                         ComArgs.RoLog.WriteLog(LogStatus.LInfo, "===========================================================");
-                        ComArgs.RoLog.WriteLog(LogStatus.LInfo, $"{newpath}\r\n执行完成...");
+                        ComArgs.RoLog.WriteLog(LogStatus.LInfo, $"          脚本{ComArgs.UseRosName}执行完成...");
                         ComArgs.RoLog.WriteLog(LogStatus.LInfo, "===========================================================");
                     }
                     //非ros脚本不处理
@@ -78,7 +78,7 @@ namespace Ro.GuiRun.Assist
         {
             ComArgs.PropertiesDic = new Dictionary<string, string>();
             ComArgs.LanguageDic = new Dictionary<string, List<string>>();
-            ComArgs.MacroDic = new Dictionary<string, Queue<WebAction>>();
+            ComArgs.MacroDic = new Dictionary<string, Queue<TestStep>>();
 
             try
             {
@@ -105,7 +105,7 @@ namespace Ro.GuiRun.Assist
 
                     if (configEntrance.MacroDic != null && configEntrance.MacroDic.Count > 0)
                     {
-                        foreach (KeyValuePair<string, Queue<WebAction>> variable in configEntrance.MacroDic)
+                        foreach (KeyValuePair<string, Queue<TestStep>> variable in configEntrance.MacroDic)
                         {
                             ComArgs.MacroDic.Add(variable.Key, variable.Value);
                         }

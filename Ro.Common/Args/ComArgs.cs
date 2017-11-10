@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using OpenQA.Selenium;
 using Ro.Common.Info;
-using Ro.Common.UserType.ActionType;
 using Ro.Common.UserType.GuiType;
+using Ro.Common.UserType.ScriptsLogicType;
 
 namespace Ro.Common.Args
 {
@@ -46,7 +46,7 @@ namespace Ro.Common.Args
         /// <summary>
         /// 宏字典
         /// </summary>
-        public static Dictionary<string, Queue<WebAction>> MacroDic;
+        public static Dictionary<string, Queue<TestStep>> MacroDic;
 
         /// <summary>
         /// 元素字典
@@ -90,17 +90,26 @@ namespace Ro.Common.Args
         public static IWebDriver WebTestDriver;
 
         /// <summary>
-        /// 一个新的GuiType
+        /// 一个新的GuiUsePath
         /// </summary>
-        public static GuiType GuiType;
+        public static GuiUsePath GuiUsePath;
 
         /// <summary>
         /// 当前运行的Ros脚本
         /// </summary>
         public  static string UseRosName { get; set; }
 
+
+        /// <summary>
+        /// 创建UResultType
+        /// </summary>
         public static UResultType ResultType;
-        public static UViewType ViewType;
+
+        /// <summary>
+        /// 创建TestsType
+        /// 继承于OutPut
+        /// </summary>
+        public static TestStep SigTestStep;
 
 
         #endregion

@@ -42,7 +42,7 @@ namespace Ro.Assist.AssistBot
                     //提取参数
                     string arg = sigstr.Replace("${", "").Replace("}", "");
                     string value = ComArgs.PropertiesDic[arg];
-                    ComArgs.RoLog.WriteLog(LogStatus.LDeb, $"准备替换的参数为:{arg}, 替换值为:{value}");
+                    ComArgs.RoLog.WriteLog(LogStatus.LInfo, $"准备替换的参数为:{arg}, 替换值为:{value}");
                     BackNormalString(value); //递归函数，直至获得一个全文本值
                 }
             }

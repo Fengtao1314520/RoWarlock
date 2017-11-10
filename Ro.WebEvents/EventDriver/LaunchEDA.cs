@@ -7,6 +7,7 @@ using Ro.Common.Args;
 using Ro.Common.UserType.ActionType;
 using Ro.Assist.AssistBot;
 using Ro.Common.EnumType;
+using Ro.Common.UserType.ScriptsLogicType;
 
 namespace Ro.WebEvents.EventDriver
 {
@@ -16,7 +17,7 @@ namespace Ro.WebEvents.EventDriver
     public class LaunchEDA
     {
         private readonly LaunchAction _launchAction;
-
+        private readonly GuiViewEvent _guiViewEvent = new GuiViewEvent();
         #region 只读Get方法
 
         /// <summary>
@@ -41,11 +42,12 @@ namespace Ro.WebEvents.EventDriver
         /// 构造函数
         /// 实体使用方法
         /// </summary>
-        /// <param name="launchAction"></param>
-        public LaunchEDA(LaunchAction launchAction)
+        /// <param name="launchTestStep">launch操作</param>
+        public LaunchEDA(TestStep launchTestStep)
         {
             //初始化赋值
-            _launchAction = launchAction;
+            _launchAction = launchTestStep.WebAction.Action as LaunchAction;
+            ComArgs.SigTestStep = launchTestStep;
         }
 
         #endregion
@@ -125,7 +127,7 @@ namespace Ro.WebEvents.EventDriver
                 chromeOptions.AddUserProfilePreference("download.prompt_for_download", false);
                 //chromeOptions.BinaryLocation = "C:/Browser/chromedriver.exe";
                 //启动chrome浏览器
-                ComArgs.WebTestDriver = new ChromeDriver("C:/Browser",  chromeOptions);
+                ComArgs.WebTestDriver = new ChromeDriver("C:/Browser", chromeOptions);
                 ComArgs.WebTestDriver.Manage().Timeouts().PageLoad = timeout;
 
                 //获取url值
@@ -135,15 +137,27 @@ namespace Ro.WebEvents.EventDriver
                 ComArgs.RoLog.WriteLog(LogStatus.LDeb, $"当前的CurrentWindowHandle是:{ComArgs.WebTestDriver.CurrentWindowHandle}");
                 //设置长和高
                 //ComArgs.WebTestDriver.Manage().Window.Maximize();
-
+                ComArgs.SigTestStep.ResultStr = "成功";
+                ComArgs.SigTestStep.Result = true;
+                ComArgs.SigTestStep.ExtraInfo = $"启动浏览器成功,使用浏览器为:{_launchAction.BrowserType}, 进入网址为:{url}";
                 return true;
             }
             catch (Exception e)
             {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                ComArgs.SigTestStep.ResultStr = "异常";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                ComArgs.SigTestStep.Message = e.Message;
+                ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
                 return false;
             }
-           
+            finally
+            {
+                ComArgs.SigTestStep.StepName = _launchAction.ActionType;
+                ComArgs.SigTestStep.ControlId = "未使用";
+                _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
+            }
 
         }
 

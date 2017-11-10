@@ -5,8 +5,8 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using Ro.Assist.AssistBot;
 using Ro.Common.Args;
-using Ro.Common.EnumType;
 using Ro.Common.UserType.ActionType;
+using Ro.Common.UserType.ScriptsLogicType;
 using Ro.WebEvents.ElementDriver;
 
 namespace Ro.WebEvents.EventDriver
@@ -16,7 +16,8 @@ namespace Ro.WebEvents.EventDriver
         private readonly WaitUntilAction _waitUntilAction;
         private readonly WebDriverWait _webDriverWait;
 
-        private readonly GuiViewEvent _guiViewEvent=new GuiViewEvent();
+        private readonly GuiViewEvent _guiViewEvent = new GuiViewEvent();
+
         #region 返回GET值
 
         /// <summary>
@@ -30,15 +31,48 @@ namespace Ro.WebEvents.EventDriver
                 {
                     bool temp = _webDriverWait.Until((wdriver) =>
                     {
-                        var javaScriptExecutor = ComArgs.WebTestDriver as IJavaScriptExecutor;
+                        IJavaScriptExecutor javaScriptExecutor = ComArgs.WebTestDriver as IJavaScriptExecutor;
                         return javaScriptExecutor != null && javaScriptExecutor.ExecuteScript("return document.readyState").Equals("complete");
                     });
+
+                    if (temp)
+                    {
+                        ComArgs.SigTestStep.ResultStr = "成功";
+                        ComArgs.SigTestStep.Result = true;
+                        ComArgs.SigTestStep.ExtraInfo = $"当前页面已载入完成";
+                    }
+                    else
+                    {
+                        ComArgs.SigTestStep.ResultStr = "失败";
+                        ComArgs.SigTestStep.Result = false;
+                        ComArgs.SigTestStep.ExtraInfo = $"当前页面未在设定时间内载入完成";
+                    }
+
                     return temp;
                 }
+                catch (WebDriverTimeoutException)
+                {
+                    ComArgs.SigTestStep.ResultStr = "失败";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = "RoWarlock操作超时";
+                    return false;
+                }
+
                 catch (Exception e)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    ComArgs.SigTestStep.ResultStr = "异常";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                    ComArgs.SigTestStep.Message = e.Message;
+                    ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                    ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
                     return false;
+                }
+                finally
+                {
+                    ComArgs.SigTestStep.StepName = _waitUntilAction.ActionType;
+                    ComArgs.SigTestStep.ControlId = "未使用";
+                    _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
                 }
             }
         }
@@ -55,20 +89,64 @@ namespace Ro.WebEvents.EventDriver
                     FindWebElement findele = new FindWebElement(_waitUntilAction.ElementId, _waitUntilAction.Timeout);
                     if (findele.WebElement == null)
                     {
+                        ComArgs.SigTestStep.ResultStr = "失败";
+                        ComArgs.SigTestStep.Result = false;
+                        ComArgs.SigTestStep.ExtraInfo = $"查找元素:{_waitUntilAction.ElementId}不存在,请仔细检查对应控件";
                         return false;
                     }
                     else
                     {
-                        return StrLengthPrvFunc(findele.WebElement);
+                        //首先要判断是否是easyui
+                        IWebElement temp = findele.WebElement.FindElement(By.XPath("following-sibling::input"));
+                        //非 EasyUI,直接处理
+                        int temple = temp?.GetAttribute("value").Length ?? findele.WebElement.Text.Length;
+
+                        //查找
+                        int dvalue = _waitUntilAction.Length - temple;
+
+                        //结果
+                        bool revaluel = dvalue == 0 && _waitUntilAction.LenghtType == "Equal" || dvalue > 0 && _waitUntilAction.LenghtType == "Longer" || dvalue < 0 && _waitUntilAction.LenghtType == "Lower";
+
+                        if (revaluel)
+                        {
+                            ComArgs.SigTestStep.ResultStr = "成功";
+                            ComArgs.SigTestStep.Result = true;
+                            ComArgs.SigTestStep.ExtraInfo = $"控件文本预期长度:{_waitUntilAction.Length}, 实际长度:{temp}";
+                        }
+                        else
+                        {
+                            ComArgs.SigTestStep.ResultStr = "失败";
+                            ComArgs.SigTestStep.Result = false;
+                            ComArgs.SigTestStep.ExtraInfo = $"控件文本预期长度:{_waitUntilAction.Length}, 实际长度:{temp}";
+                        }
+
+                        return revaluel;
                     }
                 }
-                catch (Exception e)
+                catch (WebDriverTimeoutException)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    ComArgs.SigTestStep.ResultStr = "失败";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = "RoWarlock操作超时";
                     return false;
                 }
 
-
+                catch (Exception e)
+                {
+                    ComArgs.SigTestStep.ResultStr = "异常";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                    ComArgs.SigTestStep.Message = e.Message;
+                    ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                    ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
+                    return false;
+                }
+                finally
+                {
+                    ComArgs.SigTestStep.StepName = _waitUntilAction.ActionType;
+                    ComArgs.SigTestStep.ControlId = _waitUntilAction.ElementId;
+                    _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
+                }
             }
         }
 
@@ -84,19 +162,7 @@ namespace Ro.WebEvents.EventDriver
                     List<bool> rebackBools = new List<bool>();
                     foreach (AreInfo sigAreInfo in _waitUntilAction.AreInfo)
                     {
-                        IWebElement ele;
-                        //获取webelement
-                        FindWebElement findWeb = new FindWebElement(sigAreInfo.ElementId, _waitUntilAction.Timeout);
-                        if (findWeb.WebElement == null)
-                        {
-                            ele = null;
-                        }
-                        else
-                        {
-                            ele = findWeb.WebElement;
-                        }
-
-                        rebackBools.Add(StrContainsPrvFunc(ele, sigAreInfo));
+                        rebackBools.Add(StrContainsPrvFunc(sigAreInfo));
                     }
                     if (rebackBools.Contains(false))
                     {
@@ -106,7 +172,7 @@ namespace Ro.WebEvents.EventDriver
                 }
                 catch (Exception e)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    //ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return false;
                 }
             }
@@ -124,19 +190,7 @@ namespace Ro.WebEvents.EventDriver
                     List<bool> rebackBools = new List<bool>();
                     foreach (AreInfo sigAreInfo in _waitUntilAction.AreInfo)
                     {
-                        IWebElement ele;
-                        //获取webelement
-                        FindWebElement findWeb = new FindWebElement(sigAreInfo.ElementId, _waitUntilAction.Timeout);
-                        if (findWeb.WebElement == null)
-                        {
-                            ele = null;
-                        }
-                        else
-                        {
-                            ele = findWeb.WebElement;
-                        }
-
-                        rebackBools.Add(AreEqualPrvFunc(ele, sigAreInfo));
+                        rebackBools.Add(AreEqualPrvFunc(sigAreInfo));
                     }
                     if (rebackBools.Contains(false))
                     {
@@ -146,7 +200,7 @@ namespace Ro.WebEvents.EventDriver
                 }
                 catch (Exception e)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    //ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return false;
                 }
             }
@@ -165,19 +219,7 @@ namespace Ro.WebEvents.EventDriver
                     List<bool> rebackBools = new List<bool>();
                     foreach (AreInfo sigAreInfo in _waitUntilAction.AreInfo)
                     {
-                        IWebElement ele;
-                        //获取webelement
-                        FindWebElement findWeb = new FindWebElement(sigAreInfo.ElementId, _waitUntilAction.Timeout);
-                        if (findWeb.WebElement == null)
-                        {
-                            ele = null;
-                        }
-                        else
-                        {
-                            ele = findWeb.WebElement;
-                        }
-
-                        rebackBools.Add(AreNotEqualPrvFunc(ele, sigAreInfo));
+                        rebackBools.Add(AreNotEqualPrvFunc(sigAreInfo));
                     }
                     if (rebackBools.Contains(false))
                     {
@@ -187,7 +229,7 @@ namespace Ro.WebEvents.EventDriver
                 }
                 catch (Exception e)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    //ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return false;
                 }
             }
@@ -206,19 +248,7 @@ namespace Ro.WebEvents.EventDriver
                     List<bool> rebackBools = new List<bool>();
                     foreach (AreInfo sigAreInfo in _waitUntilAction.AreInfo)
                     {
-                        IWebElement ele;
-                        //获取webelement
-                        FindWebElement findWeb = new FindWebElement(sigAreInfo.ElementId, _waitUntilAction.Timeout);
-                        if (findWeb.WebElement == null)
-                        {
-                            ele = null;
-                        }
-                        else
-                        {
-                            ele = findWeb.WebElement;
-                        }
-
-                        rebackBools.Add(IsTruePrvFunc(ele, sigAreInfo));
+                        rebackBools.Add(IsTruePrvFunc(sigAreInfo));
                     }
                     if (rebackBools.Contains(false))
                     {
@@ -228,7 +258,7 @@ namespace Ro.WebEvents.EventDriver
                 }
                 catch (Exception e)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    //ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return false;
                 }
             }
@@ -247,19 +277,7 @@ namespace Ro.WebEvents.EventDriver
                     List<bool> rebackBools = new List<bool>();
                     foreach (AreInfo sigAreInfo in _waitUntilAction.AreInfo)
                     {
-                        IWebElement ele;
-                        //获取webelement
-                        FindWebElement findWeb = new FindWebElement(sigAreInfo.ElementId, _waitUntilAction.Timeout);
-                        if (findWeb.WebElement == null)
-                        {
-                            ele = null;
-                        }
-                        else
-                        {
-                            ele = findWeb.WebElement;
-                        }
-
-                        rebackBools.Add(IsFalsePrvFunc(ele, sigAreInfo));
+                        rebackBools.Add(IsFalsePrvFunc(sigAreInfo));
                     }
                     if (rebackBools.Contains(false))
                     {
@@ -269,7 +287,7 @@ namespace Ro.WebEvents.EventDriver
                 }
                 catch (Exception e)
                 {
-                    ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                    //ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return false;
                 }
             }
@@ -282,239 +300,329 @@ namespace Ro.WebEvents.EventDriver
         /// 构造函数
         /// 初始化
         /// </summary>
-        /// <param name="waitUntilAction"></param>
-        public WaitUntilEDA(WaitUntilAction waitUntilAction)
+        /// <param name="waitUntilTestStep"></param>
+        public WaitUntilEDA(TestStep waitUntilTestStep)
         {
-            _waitUntilAction = waitUntilAction;
+            _waitUntilAction = waitUntilTestStep.WebAction.Action as WaitUntilAction;
+            ComArgs.SigTestStep = waitUntilTestStep;
             //提取超时
-            TimeSpan timeSpan = TimeSpan.FromSeconds(_waitUntilAction.Timeout);
-            _webDriverWait = new WebDriverWait(ComArgs.WebTestDriver, timeSpan);
+            if (_waitUntilAction != null)
+            {
+                TimeSpan timeSpan = TimeSpan.FromSeconds(_waitUntilAction.Timeout);
+                _webDriverWait = new WebDriverWait(ComArgs.WebTestDriver, timeSpan);
+            }
         }
 
 
         #region 私有方法
 
         /// <summary>
-        /// 字符长度
-        /// </summary>
-        /// <param name="ele"></param>
-        /// <returns></returns>
-        private bool StrLengthPrvFunc(IWebElement ele)
-        {
-            try
-            {
-                //首先要判断是否是easyui
-                IWebElement temp = ele.FindElement(By.XPath("following-sibling::input"));
-                //非 EasyUI,直接处理
-                int temple = temp?.GetAttribute("value").Length ?? ele.Text.Length;
-
-                //查找
-                int dvalue = _waitUntilAction.Length - temple;
-
-                //结果
-                bool revaluel = dvalue == 0 && _waitUntilAction.LenghtType == "Equal" || dvalue > 0 && _waitUntilAction.LenghtType == "Longer" || dvalue < 0 && _waitUntilAction.LenghtType == "Lower";
-
-
-                ComArgs.ViewType.StepName = _waitUntilAction.ActionType;
-                ComArgs.ViewType.ControlId = _waitUntilAction.ElementId;
-                ComArgs.ViewType.Result = revaluel ? "成功" : "失败";
-                ComArgs.ViewType.ExtraInfo = $"预期长度:{_waitUntilAction.Length}, 实际长度:{dvalue}";
-                _guiViewEvent.OnUiViewSteps(ComArgs.ViewType);
-
-                return revaluel;
-            }
-            catch (Exception e)
-            {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
-                return false;
-            }
-        }
-
-        /// <summary>
         /// 字符包含
         /// </summary>
-        /// <param name="ele"></param>
         /// <param name="areInfo"></param>
         /// <returns></returns>
-        private bool StrContainsPrvFunc(IWebElement ele, AreInfo areInfo)
+        private bool StrContainsPrvFunc(AreInfo areInfo)
         {
+            bool re = false;
+            string actV = string.Empty;
             try
             {
-                bool re = false;
-                string actV=String.Empty;
-                //更改预期值为无参数
-                string expvalue = new ArgsIntoValue().BackNormalString(areInfo.ExpectedValue);
-                List<string> actvalue = new List<string>();
-                switch (areInfo.ActualType)
+                //获取ele
+
+                IWebElement ele = new FindWebElement(areInfo.ElementId, _waitUntilAction.Timeout).WebElement;
+                if (ele == null)
                 {
-                    case "Browser.Title":
-                        actvalue.Add(ComArgs.WebTestDriver.Title);
-                        break;
-
-                    case "Browser.Url":
-                        actvalue.Add(ComArgs.WebTestDriver.Url);
-                        break;
-
-                    case "RoWebElement.Text":
-
-                        //还需要区分EasyUI的部分写法,不仅是value,还有其他的
-                        actvalue.Add(ele.GetAttribute("value"));
-                        actvalue.Add(ele.GetAttribute("innerText"));
-                        actvalue.Add(ele.GetAttribute("textContent"));
-                        actvalue.Add(ele.GetAttribute("text"));
-                        actvalue.Add(ele.Text);
-
-                        break;
-
-                    case "RoWebElement.GetAttribute":
-                        actvalue.Add(ele.GetAttribute(areInfo.Name));
-                        break;
+                    ComArgs.SigTestStep.ResultStr = "失败";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = $"查找元素:{areInfo.ElementId}不存在,请仔细检查对应控件";
                 }
-
-                foreach (string sigvalue in actvalue)
+                else
                 {
-                    if (string.IsNullOrEmpty(sigvalue)) continue;
-                    if (!sigvalue.Contains(expvalue)) continue;
-                    re = true;
-                    //ComArgs.WebLog.WriteLog(LogStatus.LDeb, $"AreNotEqualPrvFunc 预期值:{expvalue},实际值:{sigvalue}");
-                    actV = sigvalue;
-                    break;
+                    //更改预期值为无参数
+                    string expvalue = new ArgsIntoValue().BackNormalString(areInfo.ExpectedValue);
+                    List<string> actvalue = new List<string>();
+                    //根据检索不同查询
+                    switch (areInfo.ActualType)
+                    {
+                        case "Browser.Title":
+                            actvalue.Add(ComArgs.WebTestDriver.Title);
+                            break;
+
+                        case "Browser.Url":
+                            actvalue.Add(ComArgs.WebTestDriver.Url);
+                            break;
+
+                        case "RoWebElement.Text":
+
+                            //还需要区分EasyUI的部分写法,不仅是value,还有其他的
+                            actvalue.Add(ele.GetAttribute("value"));
+                            actvalue.Add(ele.GetAttribute("innerText"));
+                            actvalue.Add(ele.GetAttribute("textContent"));
+                            actvalue.Add(ele.GetAttribute("text"));
+                            actvalue.Add(ele.Text);
+
+                            break;
+
+                        case "RoWebElement.GetAttribute":
+                            actvalue.Add(ele.GetAttribute(areInfo.Name));
+                            break;
+                    }
+                    //结果检索
+                    foreach (string sigvalue in actvalue)
+                    {
+                        if (string.IsNullOrEmpty(sigvalue)) continue;
+                        if (!sigvalue.Contains(expvalue)) continue;
+                        re = true;
+                        actV = sigvalue;
+                        break;
+                    }
+
+                    if (re)
+                    {
+                        ComArgs.SigTestStep.ResultStr = "成功";
+                        ComArgs.SigTestStep.Result = true;
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{actV}, 实际类型:{areInfo.ActualType}";
+                    }
+                    else
+                    {
+                        ComArgs.SigTestStep.ResultStr = "失败";
+                        ComArgs.SigTestStep.Result = false;
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{actV}, 实际类型:{areInfo.ActualType}";
+                    }
                 }
-
-                ComArgs.ViewType.StepName = _waitUntilAction.ActionType;
-                ComArgs.ViewType.ControlId = areInfo.ElementId;
-                ComArgs.ViewType.Result = re ? "成功" : "失败";
-                ComArgs.ViewType.ExtraInfo = $"预期值:{expvalue}, 实际值:{actV},实际类型:{areInfo.ActualType}";
-                _guiViewEvent.OnUiViewSteps(ComArgs.ViewType);
-
                 return re;
             }
+
+            catch (WebDriverTimeoutException)
+            {
+                ComArgs.SigTestStep.ResultStr = "失败";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = "RoWarlock操作超时";
+                return false;
+            }
+
             catch (Exception e)
             {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                ComArgs.SigTestStep.ResultStr = "异常";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                ComArgs.SigTestStep.Message = e.Message;
+                ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
                 return false;
+            }
+            finally
+            {
+                ComArgs.SigTestStep.StepName = _waitUntilAction.ActionType;
+                ComArgs.SigTestStep.ControlId = areInfo.ElementId;
+                _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
             }
         }
 
         /// <summary>
         /// 是否相等
         /// </summary>
-        /// <param name="ele"></param>
-        /// <param name="sigAreInfo"></param>
+        /// <param name="areInfo"></param>
         /// <returns></returns>
-        private bool AreEqualPrvFunc(IWebElement ele, AreInfo sigAreInfo)
+        private bool AreEqualPrvFunc(AreInfo areInfo)
         {
+            bool re = false;
+            string actV = string.Empty;
             try
             {
-                bool re = false;
-                string actV = String.Empty;
-                //更改预期值为无参数
-                string expvalue = new ArgsIntoValue().BackNormalString(sigAreInfo.ExpectedValue);
-                List<string> actvalue = new List<string>();
-                switch (sigAreInfo.ActualType)
+                //获取ele
+
+                IWebElement ele = new FindWebElement(areInfo.ElementId, _waitUntilAction.Timeout).WebElement;
+                if (ele == null)
                 {
-                    case "Browser.Title":
-                        actvalue.Add(ComArgs.WebTestDriver.Title);
-                        break;
-                    case "Browser.Url":
-                        actvalue.Add(ComArgs.WebTestDriver.Url);
-                        break;
-                    case "RoWebElement.Text":
-                        //还需要区分EasyUI的部分写法,不仅是value,还有其他的
-                        actvalue.Add(ele.GetAttribute("value"));
-                        actvalue.Add(ele.GetAttribute("innerText"));
-                        actvalue.Add(ele.GetAttribute("textContent"));
-                        actvalue.Add(ele.GetAttribute("text"));
-                        actvalue.Add(ele.Text);
-                        break;
-
-                    case "RoWebElement.GetAttribute":
-                        actvalue.Add(ele.GetAttribute(sigAreInfo.Name));
-                        break;
+                    ComArgs.SigTestStep.ResultStr = "失败";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = $"查找元素:{areInfo.ElementId}不存在,请仔细检查对应控件";
                 }
-
-
-                foreach (string sigvalue in actvalue)
+                else
                 {
-                    if (string.IsNullOrEmpty(sigvalue)) continue;
-                    if (!sigvalue.Equals(expvalue)) continue;
-                    re = true;
-                    //ComArgs.WebLog.WriteLog(LogStatus.LDeb, $"AreNotEqualPrvFunc 预期值:{expvalue},实际值:{sigvalue}");
-                    actV = sigvalue;
-                    break;
+                    //更改预期值为无参数
+                    string expvalue = new ArgsIntoValue().BackNormalString(areInfo.ExpectedValue);
+                    List<string> actvalue = new List<string>();
+                    //根据检索不同查询
+                    switch (areInfo.ActualType)
+                    {
+                        case "Browser.Title":
+                            actvalue.Add(ComArgs.WebTestDriver.Title);
+                            break;
+
+                        case "Browser.Url":
+                            actvalue.Add(ComArgs.WebTestDriver.Url);
+                            break;
+
+                        case "RoWebElement.Text":
+
+                            //还需要区分EasyUI的部分写法,不仅是value,还有其他的
+                            actvalue.Add(ele.GetAttribute("value"));
+                            actvalue.Add(ele.GetAttribute("innerText"));
+                            actvalue.Add(ele.GetAttribute("textContent"));
+                            actvalue.Add(ele.GetAttribute("text"));
+                            actvalue.Add(ele.Text);
+
+                            break;
+
+                        case "RoWebElement.GetAttribute":
+                            actvalue.Add(ele.GetAttribute(areInfo.Name));
+                            break;
+                    }
+                    //结果检索
+                    foreach (string sigvalue in actvalue)
+                    {
+                        if (!string.IsNullOrEmpty(sigvalue) && sigvalue.Equals(expvalue))
+                        {
+                            re = true;
+                            actV = sigvalue;
+                            break;
+                        }
+                    }
+
+                    if (re)
+                    {
+                        ComArgs.SigTestStep.ResultStr = "成功";
+                        ComArgs.SigTestStep.Result = true;
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{actV}, 实际类型:{areInfo.ActualType}";
+                    }
+                    else
+                    {
+                        ComArgs.SigTestStep.ResultStr = "失败";
+                        ComArgs.SigTestStep.Result = false;
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{actV}, 实际类型:{areInfo.ActualType}";
+                    }
                 }
-                ComArgs.ViewType.StepName = _waitUntilAction.ActionType;
-                ComArgs.ViewType.ControlId = sigAreInfo.ElementId;
-                ComArgs.ViewType.Result = re ? "成功" : "失败";
-                ComArgs.ViewType.ExtraInfo = $"预期值:{expvalue}, 实际值:{actV},实际类型:{sigAreInfo.ActualType}";
-                _guiViewEvent.OnUiViewSteps(ComArgs.ViewType);
                 return re;
             }
+
+            catch (WebDriverTimeoutException)
+            {
+                ComArgs.SigTestStep.ResultStr = "失败";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = "RoWarlock操作超时";
+                return false;
+            }
+
             catch (Exception e)
             {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                ComArgs.SigTestStep.ResultStr = "异常";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                ComArgs.SigTestStep.Message = e.Message;
+                ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
                 return false;
+            }
+            finally
+            {
+                ComArgs.SigTestStep.StepName = _waitUntilAction.ActionType;
+                ComArgs.SigTestStep.ControlId = areInfo.ElementId;
+                _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
             }
         }
 
         /// <summary>
         /// 是否不等
         /// </summary>
-        /// <param name="ele"></param>
-        /// <param name="sigAreInfo"></param>
+        /// <param name="areInfo"></param>
         /// <returns></returns>
-        private bool AreNotEqualPrvFunc(IWebElement ele, AreInfo sigAreInfo)
+        private bool AreNotEqualPrvFunc(AreInfo areInfo)
         {
+            bool re = true;
+            string actV = string.Empty;
             try
             {
-                bool re = true;
-                string actV = String.Empty;
-                //更改预期值为无参数
-                string expvalue = new ArgsIntoValue().BackNormalString(sigAreInfo.ExpectedValue);
-                List<string> actvalue = new List<string>();
-                switch (sigAreInfo.ActualType)
+                //获取ele
+                IWebElement ele = new FindWebElement(areInfo.ElementId, _waitUntilAction.Timeout).WebElement;
+                if (ele == null)
                 {
-                    case "Browser.Title":
-                        actvalue.Add(ComArgs.WebTestDriver.Title);
-                        break;
-                    case "Browser.Url":
-                        actvalue.Add(ComArgs.WebTestDriver.Url);
-                        break;
-                    case "RoWebElement.Text":
-
-                        //还需要区分EasyUI的部分写法,不仅是value,还有其他的
-                        actvalue.Add(ele.GetAttribute("value"));
-                        actvalue.Add(ele.GetAttribute("innerText"));
-                        actvalue.Add(ele.GetAttribute("textContent"));
-                        actvalue.Add(ele.GetAttribute("text"));
-                        actvalue.Add(ele.Text);
-                        break;
-
-                    case "RoWebElement.GetAttribute":
-                        actvalue.Add(ele.GetAttribute(sigAreInfo.Name));
-                        break;
+                    ComArgs.SigTestStep.ResultStr = "失败";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = $"查找元素:{areInfo.ElementId}不存在,请仔细检查对应控件";
                 }
-
-                foreach (string sigvalue in actvalue)
+                else
                 {
-                    if (string.IsNullOrEmpty(sigvalue)) continue;
-                    if (!sigvalue.Equals(expvalue)) continue;
-                    re = false;
-                    //ComArgs.WebLog.WriteLog(LogStatus.LDeb, $"AreNotEqualPrvFunc 预期值:{expvalue},实际值:{sigvalue}");
-                    actV = sigvalue;
-                    break;
+                    //更改预期值为无参数
+                    string expvalue = new ArgsIntoValue().BackNormalString(areInfo.ExpectedValue);
+                    List<string> actvalue = new List<string>();
+                    //根据检索不同查询
+                    switch (areInfo.ActualType)
+                    {
+                        case "Browser.Title":
+                            actvalue.Add(ComArgs.WebTestDriver.Title);
+                            break;
+
+                        case "Browser.Url":
+                            actvalue.Add(ComArgs.WebTestDriver.Url);
+                            break;
+
+                        case "RoWebElement.Text":
+
+                            //还需要区分EasyUI的部分写法,不仅是value,还有其他的
+                            actvalue.Add(ele.GetAttribute("value"));
+                            actvalue.Add(ele.GetAttribute("innerText"));
+                            actvalue.Add(ele.GetAttribute("textContent"));
+                            actvalue.Add(ele.GetAttribute("text"));
+                            actvalue.Add(ele.Text);
+
+                            break;
+
+                        case "RoWebElement.GetAttribute":
+                            actvalue.Add(ele.GetAttribute(areInfo.Name));
+                            break;
+                    }
+                    //结果检索
+                    foreach (string sigvalue in actvalue)
+                    {
+                        if (!string.IsNullOrEmpty(sigvalue) && sigvalue.Equals(expvalue))
+                        {
+                            re = false;
+                            actV = sigvalue;
+                            break;
+                        }
+                    }
+
+                    if (re)
+                    {
+                        ComArgs.SigTestStep.ResultStr = "成功";
+                        ComArgs.SigTestStep.Result = true;
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{actV}, 实际类型:{areInfo.ActualType}";
+                    }
+                    else
+                    {
+                        ComArgs.SigTestStep.ResultStr = "失败";
+                        ComArgs.SigTestStep.Result = false;
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{actV}, 实际类型:{areInfo.ActualType}";
+                    }
                 }
-                ComArgs.ViewType.StepName = _waitUntilAction.ActionType;
-                ComArgs.ViewType.ControlId = sigAreInfo.ElementId;
-                ComArgs.ViewType.Result = re ? "成功" : "失败";
-                ComArgs.ViewType.ExtraInfo = $"预期值:{expvalue}, 实际值:{actV},实际类型:{sigAreInfo.ActualType}";
-                _guiViewEvent.OnUiViewSteps(ComArgs.ViewType);
                 return re;
             }
+
+            catch (WebDriverTimeoutException)
+            {
+                ComArgs.SigTestStep.ResultStr = "失败";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = "RoWarlock操作超时";
+                return false;
+            }
+
             catch (Exception e)
             {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                ComArgs.SigTestStep.ResultStr = "异常";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                ComArgs.SigTestStep.Message = e.Message;
+                ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
                 return false;
+            }
+            finally
+            {
+                ComArgs.SigTestStep.StepName = _waitUntilAction.ActionType;
+                ComArgs.SigTestStep.ControlId = areInfo.ElementId;
+                _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
             }
         }
 
@@ -522,89 +630,163 @@ namespace Ro.WebEvents.EventDriver
         /// <summary>
         /// 是否为真
         /// </summary>
-        /// <param name="ele"></param>
-        /// <param name="sigAreInfo"></param>
+        /// <param name="areInfo"></param>
         /// <returns></returns>
-        private bool IsTruePrvFunc(IWebElement ele, AreInfo sigAreInfo)
+        private bool IsTruePrvFunc(AreInfo areInfo)
         {
             try
             {
-                bool actvalue = new bool();
-                switch (sigAreInfo.ActualType)
+                //获取ele
+                IWebElement ele = new FindWebElement(areInfo.ElementId, _waitUntilAction.Timeout).WebElement;
+                if (ele == null)
                 {
-                    case "Browser.IsPageLoaded":
-                        IJavaScriptExecutor jsExecutor = ComArgs.WebTestDriver as IJavaScriptExecutor;
-                        string com = (string) jsExecutor?.ExecuteScript("return document.readyState");
-                        actvalue = com == "complete";
-                        break;
-                    case "RoWebElement.Displayed":
-                        actvalue = ele.Displayed;
-                        break;
-                    case "RoWebElement.Enabled":
-                        //还需要区分EasyUI的部分写法
-                        actvalue = ele.Enabled;
-                        break;
-                    case "RoWebElement.Selected":
-                        actvalue = ele.Selected;
-                        break;
+                    ComArgs.SigTestStep.ResultStr = "失败";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = $"查找元素:{areInfo.ElementId}不存在,请仔细检查对应控件";
+                    return false;
                 }
-                //ComArgs.WebLog.WriteLog(LogStatus.LDeb, $"预期值:{true.ToString()},实际值:{actvalue}");
+                else
+                {
+                    bool actvalue = new bool();
+                    switch (areInfo.ActualType)
+                    {
+                        case "Browser.IsPageLoaded":
+                            IJavaScriptExecutor jsExecutor = ComArgs.WebTestDriver as IJavaScriptExecutor;
+                            string com = (string) jsExecutor?.ExecuteScript("return document.readyState");
+                            actvalue = com == "complete";
+                            break;
+                        case "RoWebElement.Displayed":
+                            actvalue = ele.Displayed;
+                            break;
+                        case "RoWebElement.Enabled":
+                            //还需要区分EasyUI的部分写法
+                            actvalue = ele.Enabled;
+                            break;
+                        case "RoWebElement.Selected":
+                            actvalue = ele.Selected;
+                            break;
+                    }
 
-                ComArgs.ViewType.StepName = _waitUntilAction.ActionType;
-                ComArgs.ViewType.ControlId = sigAreInfo.ElementId;
-                ComArgs.ViewType.Result = actvalue ? "成功" : "失败";
-                ComArgs.ViewType.ExtraInfo = $"预期值:{sigAreInfo.ExpectedValue}, 实际值:{actvalue},实际类型:{sigAreInfo.ActualType}";
-                _guiViewEvent.OnUiViewSteps(ComArgs.ViewType);
-                return actvalue;
+
+                    if (actvalue)
+                    {
+                        ComArgs.SigTestStep.ResultStr = "成功";
+                        ComArgs.SigTestStep.Result = true;
+                        ComArgs.SigTestStep.ExtraInfo = $"预期值:{areInfo.ExpectedValue}, 实际值:{actvalue}, 实际类型:{areInfo.ActualType}";
+                    }
+                    else
+                    {
+                        ComArgs.SigTestStep.ResultStr = "成功";
+                        ComArgs.SigTestStep.Result = true;
+                        ComArgs.SigTestStep.ExtraInfo = $"预期值:{areInfo.ExpectedValue}, 实际值:{actvalue}, 实际类型:{areInfo.ActualType}";
+                    }
+
+                    return actvalue;
+                }
             }
+            catch (WebDriverTimeoutException)
+            {
+                ComArgs.SigTestStep.ResultStr = "失败";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = "RoWarlock操作超时";
+                return false;
+            }
+
             catch (Exception e)
             {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                ComArgs.SigTestStep.ResultStr = "异常";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                ComArgs.SigTestStep.Message = e.Message;
+                ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
                 return false;
+            }
+            finally
+            {
+                ComArgs.SigTestStep.StepName = _waitUntilAction.ActionType;
+                ComArgs.SigTestStep.ControlId = areInfo.ElementId;
+                _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
             }
         }
 
         /// <summary>
         /// 是否为假
         /// </summary>
-        /// <param name="ele"></param>
-        /// <param name="sigAreInfo"></param>
+        /// <param name="areInfo"></param>
         /// <returns></returns>
-        private bool IsFalsePrvFunc(IWebElement ele, AreInfo sigAreInfo)
+        private bool IsFalsePrvFunc(AreInfo areInfo)
         {
             try
             {
-                bool actvalue = new bool();
-                switch (sigAreInfo.ActualType)
+                //获取ele
+                IWebElement ele = new FindWebElement(areInfo.ElementId, _waitUntilAction.Timeout).WebElement;
+                if (ele == null)
                 {
-                    case "Browser.IsPageLoaded":
-                        IJavaScriptExecutor jsExecutor = ComArgs.WebTestDriver as IJavaScriptExecutor;
-                        string com = (string) jsExecutor?.ExecuteScript("return document.readyState");
-                        actvalue = com == "complete";
-                        break;
-                    case "RoWebElement.Displayed":
-                        actvalue = ele.Displayed;
-                        break;
-                    case "RoWebElement.Enabled":
-                        //还需要区分EasyUI的部分写法
-                        actvalue = ele.Enabled;
-                        break;
-                    case "RoWebElement.Selected":
-                        actvalue = ele.Selected;
-                        break;
+                    ComArgs.SigTestStep.ResultStr = "失败";
+                    ComArgs.SigTestStep.Result = false;
+                    ComArgs.SigTestStep.ExtraInfo = $"查找元素:{areInfo.ElementId}不存在,请仔细检查对应控件";
+                    return false;
                 }
-                //ComArgs.WebLog.WriteLog(LogStatus.LDeb, $"预期值:{false.ToString()},实际值:{actvalue}");
-                ComArgs.ViewType.StepName = _waitUntilAction.ActionType;
-                ComArgs.ViewType.ControlId = sigAreInfo.ElementId;
-                ComArgs.ViewType.Result = actvalue ? "成功" : "失败";
-                ComArgs.ViewType.ExtraInfo = $"预期值:{sigAreInfo.ExpectedValue}, 实际值:{actvalue},实际类型:{sigAreInfo.ActualType}";
-                _guiViewEvent.OnUiViewSteps(ComArgs.ViewType);
-                return !actvalue;
+                else
+                {
+                    bool actvalue = new bool();
+                    switch (areInfo.ActualType)
+                    {
+                        case "Browser.IsPageLoaded":
+                            IJavaScriptExecutor jsExecutor = ComArgs.WebTestDriver as IJavaScriptExecutor;
+                            string com = (string) jsExecutor?.ExecuteScript("return document.readyState");
+                            actvalue = com == "complete";
+                            break;
+                        case "RoWebElement.Displayed":
+                            actvalue = ele.Displayed;
+                            break;
+                        case "RoWebElement.Enabled":
+                            //还需要区分EasyUI的部分写法
+                            actvalue = ele.Enabled;
+                            break;
+                        case "RoWebElement.Selected":
+                            actvalue = ele.Selected;
+                            break;
+                    }
+                    if (actvalue)
+                    {
+                        ComArgs.SigTestStep.ResultStr = "失败";
+                        ComArgs.SigTestStep.Result = false;
+                        ComArgs.SigTestStep.ExtraInfo = $"预期值:{areInfo.ExpectedValue}, 实际值:{actvalue}, 实际类型:{areInfo.ActualType}";
+                    }
+                    else
+                    {
+                        ComArgs.SigTestStep.ResultStr = "成功";
+                        ComArgs.SigTestStep.Result = true;
+                        ComArgs.SigTestStep.ExtraInfo = $"预期值:{areInfo.ExpectedValue}, 实际值:{actvalue}, 实际类型:{areInfo.ActualType}";
+                    }
+                    return actvalue;
+                }
             }
+            catch (WebDriverTimeoutException)
+            {
+                ComArgs.SigTestStep.ResultStr = "失败";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = "RoWarlock操作超时";
+                return false;
+            }
+
             catch (Exception e)
             {
-                ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
+                ComArgs.SigTestStep.ResultStr = "异常";
+                ComArgs.SigTestStep.Result = false;
+                ComArgs.SigTestStep.ExtraInfo = $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常";
+                ComArgs.SigTestStep.Message = e.Message;
+                ComArgs.SigTestStep.StackTrace = e.StackTrace;
+                ComArgs.SigTestStep.FullName = e.TargetSite.DeclaringType?.FullName;
                 return false;
+            }
+            finally
+            {
+                ComArgs.SigTestStep.StepName = _waitUntilAction.ActionType;
+                ComArgs.SigTestStep.ControlId = areInfo.ElementId;
+                _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
             }
         }
 

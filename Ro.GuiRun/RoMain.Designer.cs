@@ -30,6 +30,7 @@ namespace Ro.GuiRun
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RoMain));
             this.RosTree = new System.Windows.Forms.TreeView();
             this.Start = new MaterialSkin.Controls.MaterialFlatButton();
@@ -46,6 +47,7 @@ namespace Ro.GuiRun
             this.FailSteps = new System.Windows.Forms.ToolStripStatusLabel();
             this.SucCover = new System.Windows.Forms.ToolStripStatusLabel();
             this.OneKey = new DMSkin.Metro.Controls.MetroButton();
+            this.ResultTip = new System.Windows.Forms.ToolTip(this.components);
             this.GuiStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -90,6 +92,7 @@ namespace Ro.GuiRun
             this.ResultView.TabIndex = 2;
             this.ResultView.UseCompatibleStateImageBehavior = false;
             this.ResultView.View = System.Windows.Forms.View.Details;
+            this.ResultView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ResultView_MouseMove);
             // 
             // ID
             // 
@@ -141,7 +144,7 @@ namespace Ro.GuiRun
             this.SucCover});
             this.GuiStrip.Location = new System.Drawing.Point(4, 674);
             this.GuiStrip.Name = "GuiStrip";
-            this.GuiStrip.Size = new System.Drawing.Size(347, 22);
+            this.GuiStrip.Size = new System.Drawing.Size(316, 22);
             this.GuiStrip.TabIndex = 5;
             this.GuiStrip.Text = "statusStrip1";
             // 
@@ -216,6 +219,7 @@ namespace Ro.GuiRun
         private System.Windows.Forms.ToolStripStatusLabel FailSteps;
         private System.Windows.Forms.ToolStripStatusLabel SucCover;
         private DMSkin.Metro.Controls.MetroButton OneKey;
+        private System.Windows.Forms.ToolTip ResultTip;
     }
 }
 
