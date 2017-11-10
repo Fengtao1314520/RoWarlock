@@ -215,30 +215,6 @@ namespace Ro.GuiRun
         #endregion
 
 
-        /// <summary>
-        /// 鼠标移动事件
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ResultView_MouseMove(object sender, MouseEventArgs e)
-        {
-            ListViewItem lvi = ResultView.GetItemAt(e.X, e.Y);
-            if (lvi != null)
-            {
-              
-                if (pointView.X != e.X || pointView.Y != e.Y) //防止闪烁
-                {
-                    ResultTip.Show("Test", ResultView, new Point(e.X, e.Y), 1000);
-                    pointView.X = e.X;
-                    pointView.Y = e.Y;
-                    ResultTip.Active = true;
-                }
-                else
-                {
-                    ResultTip.Hide(ResultView);
-                    pointView = new Point(e.X, e.Y);
-                }
-            }
-        }
+        
     }
 }

@@ -86,13 +86,14 @@ namespace Ro.GuiRun
             this.Result,
             this.Extra});
             this.ResultView.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.ResultView.FullRowSelect = true;
             this.ResultView.Location = new System.Drawing.Point(240, 41);
             this.ResultView.Name = "ResultView";
             this.ResultView.Size = new System.Drawing.Size(753, 568);
             this.ResultView.TabIndex = 2;
             this.ResultView.UseCompatibleStateImageBehavior = false;
             this.ResultView.View = System.Windows.Forms.View.Details;
-            this.ResultView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ResultView_MouseMove);
+            
             // 
             // ID
             // 
