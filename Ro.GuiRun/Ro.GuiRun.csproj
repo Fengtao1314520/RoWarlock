@@ -108,6 +108,9 @@
     <Content Include="Icon\file.ico" />
     <Content Include="Icon\folder.ico" />
     <Content Include="Icon\Logo.ico" />
+    <Content Include="Icon\ReadMe\Images\1select.png" />
+    <Content Include="Icon\ReadMe\Images\2run.png" />
+    <Content Include="Icon\ReadMe\Images\envpath.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ro.Assist\Ro.Assist.csproj">
@@ -122,6 +125,9 @@
       <Project>{7f41f0c7-93d3-4449-a36d-33e9b85aa4a2}</Project>
       <Name>Ro.Interpreter</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Icon\ReadMe\MarkDown\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
