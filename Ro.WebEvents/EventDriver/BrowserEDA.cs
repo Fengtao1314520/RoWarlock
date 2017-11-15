@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Support.Extensions;
 using OpenQA.Selenium.Support.UI;
 using Ro.Assist.AssistBot;
 using Ro.Common.Args;
@@ -624,10 +624,21 @@ namespace Ro.WebEvents.EventDriver
                     string value = argsIntoValue.BackNormalString(imagepath);
 
                     string temp = "c:/temp/Ro_Auto_Logs/Image";
-                    ComArgs.WebTestDriver.TakeScreenshot().SaveAsFile($"{temp}/{value}", ScreenshotImageFormat.Jpeg);
+                    //ComArgs.WebTestDriver.TakeScreenshot().SaveAsFile($"{temp}/{value}", ScreenshotImageFormat.Jpeg);
+                    //todo  改进了写法，使用流进行保存
+                    Screenshot screenshot = ((ITakesScreenshot)ComArgs.WebTestDriver).GetScreenshot();
+                    byte[] imageBytes = Convert.FromBase64String(screenshot.ToString());
+                    using (BinaryWriter bw = new BinaryWriter(new FileStream($"{temp}/{value}", FileMode.Append,FileAccess.Write)))
+                    {
+                        bw.Write(imageBytes);
+                        bw.Close();
+                    }
+
+
                     ComArgs.SigTestStep.ResultStr = "成功";
                     ComArgs.SigTestStep.Result = true;
                     ComArgs.SigTestStep.ExtraInfo = $"截图名称:{value}";
+                    
                     return true;
                 }
                 catch (WebDriverTimeoutException)

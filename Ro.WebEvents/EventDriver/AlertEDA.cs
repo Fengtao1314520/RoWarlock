@@ -50,6 +50,7 @@ namespace Ro.WebEvents.EventDriver
                     ComArgs.SigTestStep.StepName = _alertAction.ActionType;
                     ComArgs.SigTestStep.ControlId = "未使用";
                     _guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
+
                 }
             }
         }

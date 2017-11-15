@@ -15,7 +15,7 @@ namespace Ro.GuiRun
 {
     public partial class RoMain : DMSkinForm
     {
-        Point pointView = new Point(0, 0); //位置
+        
         public RoMain()
         {
             InitializeComponent();
@@ -173,9 +173,9 @@ namespace Ro.GuiRun
             }
             else
             {
-                ListViewItem lvi = ResultView.Items.Add((ResultView.Items.Count + 1) + "");
+                ListViewItem lvi = ResultView.Items.Add($"编号:{ResultView.Items.Count + 1}");
                 lvi.UseItemStyleForSubItems = false;
-                if (item.ResultStr == "失败")
+                if (item.Result == false)
                 {
                     lvi.BackColor = Color.Red;
                 }

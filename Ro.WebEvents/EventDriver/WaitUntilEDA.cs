@@ -370,11 +370,12 @@ namespace Ro.WebEvents.EventDriver
                     //结果检索
                     foreach (string sigvalue in actvalue)
                     {
-                        if (string.IsNullOrEmpty(sigvalue)) continue;
-                        if (!sigvalue.Contains(expvalue)) continue;
-                        re = true;
-                        actV = sigvalue;
-                        break;
+                        if (sigvalue != null && sigvalue.Contains(expvalue)) 
+                        {
+                            re = true;
+                            actV = sigvalue;
+                            break;
+                        } 
                     }
 
                     if (re)
@@ -387,7 +388,7 @@ namespace Ro.WebEvents.EventDriver
                     {
                         ComArgs.SigTestStep.ResultStr = "失败";
                         ComArgs.SigTestStep.Result = false;
-                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{actV}, 实际类型:{areInfo.ActualType}";
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 但实际值中并不包含预期值字符, 实际类型:{areInfo.ActualType}";
                     }
                 }
                 return re;
@@ -473,7 +474,7 @@ namespace Ro.WebEvents.EventDriver
                     //结果检索
                     foreach (string sigvalue in actvalue)
                     {
-                        if (!string.IsNullOrEmpty(sigvalue) && sigvalue.Equals(expvalue))
+                        if (sigvalue!=null && sigvalue.Equals(expvalue))
                         {
                             re = true;
                             actV = sigvalue;
@@ -576,7 +577,7 @@ namespace Ro.WebEvents.EventDriver
                     //结果检索
                     foreach (string sigvalue in actvalue)
                     {
-                        if (!string.IsNullOrEmpty(sigvalue) && sigvalue.Equals(expvalue))
+                        if (sigvalue != null && sigvalue.Equals(expvalue))
                         {
                             re = false;
                             actV = sigvalue;

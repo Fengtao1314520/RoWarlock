@@ -54,12 +54,12 @@ namespace Ro.Interpreter.ScriptsCore.LogicCores
         private bool SingleStepExec(TestStep testStep)
         {
             WebAction webAction = testStep.WebAction;
+            //开始判断操作
+            bool sigresult = false;
             try
             {
                 MacroAction macroAction = webAction.Action as MacroAction;
 
-                //开始判断操作
-                bool sigresult = false;
 
                 switch (webAction.ActionXElement.Name.LocalName)
                 {
@@ -245,21 +245,6 @@ namespace Ro.Interpreter.ScriptsCore.LogicCores
                         }
                         break;
                 }
-                ComArgs.ResultType.NowNums = ComArgs.ResultType.NowNums + 1;
-                if (sigresult)
-                {
-                    //ComArgs.RoLog.WriteLog(LogStatus.LPass, $"当前操作{webAction.ActionXElement.Name.LocalName}成功");
-                    ComArgs.ResultType.SuccNums = ComArgs.ResultType.SuccNums + 1;
-                }
-                else
-                {
-                    //ComArgs.RoLog.WriteLog(LogStatus.LFail, $"当前操作{webAction.ActionXElement.Name.LocalName}失败");
-                    ComArgs.ResultType.FailNums = ComArgs.ResultType.FailNums + 1;
-                }
-
-                ComArgs.ResultType.Cover = (((double) ComArgs.ResultType.SuccNums / ComArgs.ResultType.NowNums) * 100).ToString("F"); //默认为保留两位
-                _guiViewEvent.OnUiViewResult(ComArgs.ResultType);
-                //_guiViewEvent.OnUiViewSteps(ComArgs.SigTestStep);
 
                 return sigresult;
             }
@@ -268,6 +253,22 @@ namespace Ro.Interpreter.ScriptsCore.LogicCores
                 //添加输出
                 ComArgs.RoLog.WriteLog(LogStatus.LExpt, "私有方法SingleStepExec发生异常", e.ToString());
                 return false;
+            }
+            finally
+            {
+                ComArgs.ResultType.NowNums = ComArgs.ResultType.NowNums + 1;
+
+                if (sigresult)
+                {
+                    ComArgs.ResultType.SuccNums = ComArgs.ResultType.SuccNums + 1;
+                }
+                else
+                {
+                    ComArgs.ResultType.FailNums = ComArgs.ResultType.FailNums + 1;
+                }
+
+                ComArgs.ResultType.Cover = (((double) ComArgs.ResultType.SuccNums / ComArgs.ResultType.NowNums) * 100).ToString("F"); //默认为保留两位
+                _guiViewEvent.OnUiViewResult(ComArgs.ResultType);
             }
         }
 

@@ -300,21 +300,23 @@ namespace Ro.WebEvents.EventDriver
                             useele.Text
                         };
 
+                        //结果检索
+                        foreach (string sigvalue in actvalue)
+                        {
+                            if ((sigvalue != null && value.Contains(sigvalue)) || (sigvalue != null && sigvalue.Contains(value)))
+                            {
+                                ComArgs.SigTestStep.ResultStr = "成功";
+                                ComArgs.SigTestStep.Result = true;
+                                ComArgs.SigTestStep.ExtraInfo = $"输入文本值:{value}";
+                                return true;
+                            }
+                        }
 
-                        if (!actvalue.Contains(value))
-                        {
-                            ComArgs.SigTestStep.ResultStr = "失败";
-                            ComArgs.SigTestStep.Result = false;
-                            ComArgs.SigTestStep.ExtraInfo = $"输入文本失败，当前控件文本不包含{value},考虑EasyUI,此步骤不一定会导致剩余步骤的失败";
-                            return false;
-                        }
-                        else
-                        {
-                            ComArgs.SigTestStep.ResultStr = "成功";
-                            ComArgs.SigTestStep.Result = true;
-                            ComArgs.SigTestStep.ExtraInfo = $"输入文本值:{value}";
-                            return true;
-                        }
+                        ComArgs.SigTestStep.ResultStr = "成功";
+                        ComArgs.SigTestStep.Result = true;
+                        ComArgs.SigTestStep.ExtraInfo = $"输入文本失败，当前控件文本不包含{value},考虑EasyUI,此步骤不一定会导致剩余步骤的失败";
+                        return true;
+
                     }
                 }
 
