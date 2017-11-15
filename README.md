@@ -2,6 +2,9 @@
 
 RoWarlock is an Automation tool base on UI, Using Selenium(Web), MSUIAutomation(Client), Appium(Mobile) as the event-driven.
 
+[RoWarlock](https://github.com/Fengtao1314520/RoWarlock)
+[RoWarlock Test Scripts Tool](https://github.com/Fengtao1314520/RoWarlock-Test-Scripts-Tool)
+
 ## 1. Construction
 
 RoWarlock has two constructions, "RoWarlock" and "RoWarlock Test Scripts Tool". The "RoWarlock" is the script execution tool, and other one is the test scripts tool.
