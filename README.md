@@ -8,9 +8,9 @@ RoWarlock is an Automation tool base on UI, Using Selenium(Web), MSUIAutomation(
 ## 1. Construction
 
 RoWarlock has two constructions, "RoWarlock" and "RoWarlock Test Scripts Tool". The "RoWarlock" is the script execution tool, and other one is the test scripts tool.
-Because RoWarlock use some WindowsForms APIs and developed by Visual Studio. Now, RoWarlock only support Microsoft Windows System.
+Because RoWarlock use some WindowsForms APIs and developed by Visual Studio. Now, RoWarlock only support Microsoft Windows OS.
 
-### 1.1 Update Version Infomation
+### 1.1 Update version Infomation
 * 2017-03-28： Complete the development of EAP version
 * 2017-04-01： Complete the test of EAP version
 * 2017-05-24： Complete the development of V1.1 version. Support command line and GUI.
@@ -20,7 +20,7 @@ Because RoWarlock use some WindowsForms APIs and developed by Visual Studio. Now
 * Installed .Net 4.5 On windows OS(better than Windows XP)
 * please copy this text "C:\Browser" on your Environment Path
   ![Like this](https://github.com/Fengtao1314520/RoWarlock/raw/master/Ro.GuiRun/Icon/ReadMe/Images/envpath.png)
-* Please Update Chrome to lastest version.RoWarlock only support Chrome v60-62
+* Please update Chrome to lastest version. RoWarlock only support Chrome v60-62
 
 ## 2. How to use the tool
 
@@ -45,7 +45,7 @@ On the tool's UI, you can see the details for every test script step, the pass s
   
 ## 3. Result and log files
   
-RoWarlock support two tpypes log, The one is Web action log, the other one is the tools log
+RoWarlock support two types log, The one is Web action log, the other one is the tools log
    
 ### 3.1 Web action log
 
@@ -112,7 +112,7 @@ Open solution by visual studio, and you can see this layered
   - other files   --- define XML format for others
 
 
-### 4.1 ros file (Ro-scripts file)
+### 4.1 Ros file (Ro-scripts file)
 
 1. create xml file and change suffix name to the "ros".
 2. copy this text
@@ -155,10 +155,10 @@ Open solution by visual studio, and you can see this layered
         <ros:Path>${PropertyID 1}\${PropertyID 2}\filename.roi</ros:Path>
       </ros:ConfigurationFile>
       <ros:ConfigurationFile ros:ID="C" ros:Type="RoMobile">
-        <ros:Path>filename.tci</ros:Path>
+        <ros:Path>filename.roi</ros:Path>
       </ros:ConfigurationFile>
       <ros:ConfigurationFile ros:ID="C" ros:Type="RoMobile">
-        <ros:Path>foldername/filename.tci</ros:Path>
+        <ros:Path>foldername/filename.roi</ros:Path>
       </ros:ConfigurationFile>
     </ros:Imports>
 
@@ -256,7 +256,7 @@ On node `ros:Imports`, saved "roi" files path that this script used. One import 
         <ros:Path></ros:Path>
       </ros:ConfigurationFile>
 ```
-you need modify ID's value  for `ros:ID`, this ID is unique, then fill in the value on `ros:Path`. `ros:Path` support parameterization,like this:`${PropertyID 1}\${PropertyID 2}\filename.roi`. in fact, `ros:Path` support three wording. (1) only roi file name `<ros:Path>filename.tci</ros:Path>`. (2) foldername and file name `<ros:Path>foldername/filename.tci</ros:Path>`.
+you need modify ID's value  for `ros:ID`, this ID is unique, then fill in the value on `ros:Path`. `ros:Path` support parameterization,like this:`${PropertyID 1}\${PropertyID 2}\filename.roi`. in fact, `ros:Path` support three wording. (1) only roi file name `<ros:Path>filename.roi</ros:Path>`. (2) foldername and file name `<ros:Path>foldername/filename.roi</ros:Path>`.
 
 
 #### 4.1.4 StartApp
@@ -304,9 +304,9 @@ This is the last scripts node. In the end of testing, RoWarlock needs save log f
 <?xml version="1.0" encoding="utf-8"?>
 
 <roi:roi xmlns:roi="http://tempuri.org/RoiFile.xsd"
-         xmlns:tcs="http://tempuri.org/RoFramework.xsd">
+         xmlns:ros="http://tempuri.org/RoFramework.xsd">
 <!--******************************************************************************
-    TODO 2017-06-05更新Tci文件中控件的命名规则
+    TODO 2017-06-05更新roi文件中控件的命名规则
     By:冯涛(Nate Ford)
     
     1.控件名称需要明确表达控件的作用，具有简单明了的表现形式
@@ -327,7 +327,7 @@ This is the last scripts node. In the end of testing, RoWarlock needs save log f
     IFrame ——> _Frm
     ******************************************************************************-->
   <roi:annotation>
-    <tcs:Description>
+    <ros:Description>
       版权、著作权归属冯涛所有
       基于Apache-2.0开源协议，授权给其他人员使用。如需修改Roi文件对应框架文件，需在被修改文件中，对本著作权人进行描述和引申
       Author: 冯涛
@@ -336,9 +336,9 @@ This is the last scripts node. In the end of testing, RoWarlock needs save log f
       Gmail: fengtao.1314520@gmail.com
 
       对整个测试元素文件进行描述详情
-    </tcs:Description>
-    <tcs:Created tcs:Author="nate" tcs:Date="2017-08-16" />
-    <tcs:LastUpdated tcs:Author="nate" tcs:Date="2017-08-16" />
+    </ros:Description>
+    <ros:Created ros:Author="nate" ros:Date="2017-08-16" />
+    <ros:LastUpdated ros:Author="nate" ros:Date="2017-08-16" />
   </roi:annotation>
 
   <roi:meta>
@@ -393,7 +393,7 @@ This is the last scripts node. In the end of testing, RoWarlock needs save log f
 
 3. fill in the corresponding information
 
-#### 4.2.1 Element naming rules
+#### 4.2.1 Element name rules
 
 * The name of the element(`roi:id=""`) needs to be simple and clear, and contains the effect of this element.
 * The name of the element is expressed in the form of a hump. The first letter is uppercase, allowing abbreviations, but not the pinyin. like this type:`roi:id="FindElement"`
@@ -496,7 +496,7 @@ When you create and complete the development of the roi file, plese rename this 
   <roc:Annotation>
     <ros:Description>
       版权、著作权归属冯涛所有
-      基于Apache-2.0开源协议，授权给其他人员使用。如需修改Roi文件对应框架文件，需在被修改文件中，对本著作权人进行描述和引申
+      基于Apache-2.0开源协议，授权给其他人员使用。如需修改Roc文件对应框架文件，需在被修改文件中，对本著作权人进行描述和引申
       Author: 冯涛
       E-mail: fengtao.1314520@163.com
       Skype/MSN: fengtao.1314520@hotmail.com
