@@ -314,7 +314,7 @@ namespace Ro.WebEvents.EventDriver
 
                         ComArgs.SigTestStep.ResultStr = "成功";
                         ComArgs.SigTestStep.Result = true;
-                        ComArgs.SigTestStep.ExtraInfo = $"输入文本失败，当前控件文本不包含{value},考虑EasyUI,此步骤不一定会导致剩余步骤的失败";
+                        ComArgs.SigTestStep.ExtraInfo = $"输入文本存在问题，输入文本值:{value}，但当前控件文本不包含{value},考虑EasyUI,此步骤不一定会导致剩余步骤的失败";
                         return true;
 
                     }
