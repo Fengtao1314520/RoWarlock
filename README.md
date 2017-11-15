@@ -20,6 +20,7 @@ Because RoWarlock use some WindowsForms APIs and developed by Visual Studio. Now
 * Installed .Net 4.5 On windows OS(better than Windows XP)
 * please copy this text "C:\Browser" on your Environment Path
   ![Like this](https://github.com/Fengtao1314520/RoWarlock/raw/master/Ro.GuiRun/Icon/ReadMe/Images/envpath.png)
+* Please Update Chrome to lastest version.RoWarlock only support Chrome v60-62
 
 ## 2. How to use the tool
 
