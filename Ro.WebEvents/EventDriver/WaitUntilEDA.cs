@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using Ro.Assist.AssistBot;
@@ -388,7 +389,13 @@ namespace Ro.WebEvents.EventDriver
                     {
                         ComArgs.SigTestStep.ResultStr = "失败";
                         ComArgs.SigTestStep.Result = false;
-                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 但实际值中并不包含预期值字符, 实际类型:{areInfo.ActualType}";
+                        StringBuilder abc = new StringBuilder();
+                        foreach (string one in actvalue)
+                        {
+                            abc.Append($"{one}/");
+                        }
+
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{abc.ToString()}, 实际类型:{areInfo.ActualType}";
                     }
                 }
                 return re;
@@ -492,7 +499,13 @@ namespace Ro.WebEvents.EventDriver
                     {
                         ComArgs.SigTestStep.ResultStr = "失败";
                         ComArgs.SigTestStep.Result = false;
-                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{actV}, 实际类型:{areInfo.ActualType}";
+                        StringBuilder abc = new StringBuilder();
+                        foreach (string one in actvalue)
+                        {
+                            abc.Append($"{one}/");
+                        }
+
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{abc.ToString()}, 实际类型:{areInfo.ActualType}";
                     }
                 }
                 return re;
@@ -595,7 +608,13 @@ namespace Ro.WebEvents.EventDriver
                     {
                         ComArgs.SigTestStep.ResultStr = "失败";
                         ComArgs.SigTestStep.Result = false;
-                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{actV}, 实际类型:{areInfo.ActualType}";
+                        StringBuilder abc = new StringBuilder();
+                        foreach (string one in actvalue)
+                        {
+                            abc.Append($"{one}/");
+                        }
+
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{abc.ToString()}, 实际类型:{areInfo.ActualType}";
                     }
                 }
                 return re;
