@@ -13,7 +13,6 @@ namespace Ro.WebEvents.EventDriver
     /// </summary>
     public class MacroReferenceEDA
     {
-
         private readonly MacroAction _macroAction;
 
         #region 只读Get方法
@@ -28,16 +27,24 @@ namespace Ro.WebEvents.EventDriver
                 try
                 {
                     //1首先提取_macroaction的id
-                    return ComArgs.MacroDic[_macroAction.MacroId];
+
+
+                    Queue<TestStep> value;
+                    bool hasValue = ComArgs.MacroDic.TryGetValue(_macroAction.MacroId, out value);
+                    if (hasValue)
+                    {
+                        Queue<TestStep> xmlfile = value;
+                       
+                        return xmlfile;
+                    }
+                    ComArgs.RoLog.WriteLog(LogStatus.LFail, $"字典ComArgs.MacroDic不包含{_macroAction.MacroId}");
+                    return null;
                 }
                 catch (Exception e)
                 {
                     ComArgs.RoLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return null;
                 }
-               
-
-
             }
         }
 

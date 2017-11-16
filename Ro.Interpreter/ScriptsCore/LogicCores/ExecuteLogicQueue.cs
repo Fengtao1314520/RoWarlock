@@ -39,6 +39,8 @@ namespace Ro.Interpreter.ScriptsCore.LogicCores
                 TestStep sig = testCase.TestSteps.Dequeue();
                 SingleStepExec(sig);
             }
+            
+            
         }
 
         #endregion
@@ -231,11 +233,10 @@ namespace Ro.Interpreter.ScriptsCore.LogicCores
                         Queue<TestStep> macros = new MacroReferenceEDA(macroAction).Macro;
                         ComArgs.RoLog.WriteLog(LogStatus.LDeb, $"当前宏操作{macroAction?.MacroId}提取步骤数量为:{macros.Count}");
                         List<bool> reList = new List<bool>();
-                        while (macros.Any())
+                        //此处有一个幽灵Bug,当macros被反馈后，如果使用队列的正常方法，字典中的值会直接被清空!!!
+                        foreach (TestStep oneTestStep in macros)
                         {
-                            //1.单个web的操作对象
-                            TestStep sig = macros.Dequeue();
-                            bool res = SingleStepExec(sig); //递归方法
+                            bool res = SingleStepExec(oneTestStep); //递归方法
                             reList.Add(res);
                         }
 
@@ -243,6 +244,7 @@ namespace Ro.Interpreter.ScriptsCore.LogicCores
                         {
                             sigresult = true;
                         }
+
                         break;
                 }
 
