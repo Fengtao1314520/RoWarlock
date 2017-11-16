@@ -36,6 +36,7 @@ namespace Ro.GuiRun
             this.Start = new MaterialSkin.Controls.MaterialFlatButton();
             this.ResultView = new System.Windows.Forms.ListView();
             this.ID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.LineNum = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Names = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Control = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Result = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -66,7 +67,7 @@ namespace Ro.GuiRun
             this.Start.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Start.Depth = 0;
             this.Start.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.Start.Location = new System.Drawing.Point(925, 633);
+            this.Start.Location = new System.Drawing.Point(1007, 638);
             this.Start.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.Start.MouseState = MaterialSkin.MouseState.HOVER;
             this.Start.Name = "Start";
@@ -81,6 +82,7 @@ namespace Ro.GuiRun
             // 
             this.ResultView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.ID,
+            this.LineNum,
             this.Names,
             this.Control,
             this.Result,
@@ -89,40 +91,45 @@ namespace Ro.GuiRun
             this.ResultView.FullRowSelect = true;
             this.ResultView.Location = new System.Drawing.Point(240, 41);
             this.ResultView.Name = "ResultView";
-            this.ResultView.Size = new System.Drawing.Size(753, 568);
+            this.ResultView.Size = new System.Drawing.Size(834, 568);
             this.ResultView.TabIndex = 2;
             this.ResultView.UseCompatibleStateImageBehavior = false;
             this.ResultView.View = System.Windows.Forms.View.Details;
-            
+            this.ResultView.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(this.ResultView_ColumnWidthChanging);
             // 
             // ID
             // 
             this.ID.Text = "步骤编号";
             this.ID.Width = 100;
             // 
+            // LineNum
+            // 
+            this.LineNum.Text = "脚本行号";
+            this.LineNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.LineNum.Width = 80;
+            // 
             // Names
             // 
             this.Names.Text = "步骤名称";
             this.Names.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.Names.Width = 150;
+            this.Names.Width = 200;
             // 
             // Control
             // 
             this.Control.Text = "使用控件";
             this.Control.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.Control.Width = 150;
+            this.Control.Width = 250;
             // 
             // Result
             // 
             this.Result.Text = "执行结果";
             this.Result.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.Result.Width = 150;
+            this.Result.Width = 100;
             // 
             // Extra
             // 
             this.Extra.Text = "追加信息";
-            this.Extra.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.Extra.Width = 200;
+            this.Extra.Width = 800;
             // 
             // SelectFile
             // 
@@ -187,7 +194,7 @@ namespace Ro.GuiRun
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1000, 700);
+            this.ClientSize = new System.Drawing.Size(1080, 700);
             this.Controls.Add(this.OneKey);
             this.Controls.Add(this.GuiStrip);
             this.Controls.Add(this.SelectFile);
@@ -221,6 +228,7 @@ namespace Ro.GuiRun
         private System.Windows.Forms.ToolStripStatusLabel SucCover;
         private DMSkin.Metro.Controls.MetroButton OneKey;
         private System.Windows.Forms.ToolTip ResultTip;
+        private System.Windows.Forms.ColumnHeader LineNum;
     }
 }
 

@@ -42,7 +42,7 @@ namespace Ro.Common.UserType.GuiType
     /// </summary>
     public class UViewType : ExpcetionInfo
     {
-
+        
         /// <summary>
         /// True/False形式的结果
         /// </summary>

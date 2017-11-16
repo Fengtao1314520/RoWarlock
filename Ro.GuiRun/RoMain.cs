@@ -7,6 +7,7 @@ using Ro.Assist.AssistBot;
 using Ro.Common.Args;
 using Ro.Common.EnumType;
 using Ro.Common.UserType.GuiType;
+using Ro.Common.UserType.ScriptsLogicType;
 using Ro.GuiRun.Assist;
 using Ro.GuiRun.OtherWins;
 using Ro.GuiRun.Resource;
@@ -15,13 +16,27 @@ namespace Ro.GuiRun
 {
     public partial class RoMain : DMSkinForm
     {
-        
         public RoMain()
         {
             InitializeComponent();
             InitRosTreeIcon.RosTreeIcon(RosTree); //初始化图片资源
             ComArgs.RoLog.CreateLog("RoUIA"); //创建log
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "脚本执行工具正式开始工作..."); //起始log语句
+        }
+
+        #region UI事件
+
+        /// <summary>
+        /// 禁止调整列宽
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ResultView_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+        {
+            // 取消掉正在调整的事件 
+            e.Cancel = true;
+            // 把新宽度恢复到之前的宽度 
+            e.NewWidth = this.ResultView.Columns[e.ColumnIndex].Width;
         }
 
 
@@ -95,6 +110,8 @@ namespace Ro.GuiRun
             _runThread.Start(root);
         }
 
+        #endregion
+
 
         #region 私有方法 AND 本地参数(变量)
 
@@ -164,7 +181,7 @@ namespace Ro.GuiRun
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="item"></param>
-        private void ChangeView(object sender, UViewType item)
+        private void ChangeView(object sender, TestStep item)
         {
             if (ResultView.InvokeRequired)
             {
@@ -183,6 +200,7 @@ namespace Ro.GuiRun
                 {
                     lvi.BackColor = Color.LimeGreen;
                 }
+                lvi.SubItems.Add(item.LineNum.ToString());
                 lvi.SubItems.Add(item.StepName);
                 lvi.SubItems.Add(item.ControlId);
                 lvi.SubItems.Add(item.ResultStr);
@@ -213,8 +231,5 @@ namespace Ro.GuiRun
         }
 
         #endregion
-
-
-        
     }
 }
