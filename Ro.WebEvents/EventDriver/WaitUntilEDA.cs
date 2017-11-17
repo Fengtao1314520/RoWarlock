@@ -371,12 +371,12 @@ namespace Ro.WebEvents.EventDriver
                     //结果检索
                     foreach (string sigvalue in actvalue)
                     {
-                        if (sigvalue != null && sigvalue.Contains(expvalue)) 
+                        if (sigvalue != null && sigvalue.Contains(expvalue))
                         {
                             re = true;
                             actV = sigvalue;
                             break;
-                        } 
+                        }
                     }
 
                     if (re)
@@ -481,7 +481,7 @@ namespace Ro.WebEvents.EventDriver
                     //结果检索
                     foreach (string sigvalue in actvalue)
                     {
-                        if (sigvalue!=null && sigvalue.Equals(expvalue))
+                        if (sigvalue != null && sigvalue.Equals(expvalue))
                         {
                             re = true;
                             actV = sigvalue;
@@ -696,8 +696,8 @@ namespace Ro.WebEvents.EventDriver
                     }
                     else
                     {
-                        ComArgs.SigTestStep.ResultStr = "成功";
-                        ComArgs.SigTestStep.Result = true;
+                        ComArgs.SigTestStep.ResultStr = "失败";
+                        ComArgs.SigTestStep.Result = false;
                         ComArgs.SigTestStep.ExtraInfo = $"预期值:{areInfo.ExpectedValue}, 实际值:{actvalue}, 实际类型:{areInfo.ActualType}";
                     }
 
@@ -739,50 +739,59 @@ namespace Ro.WebEvents.EventDriver
         {
             try
             {
+                bool actvalue = new bool();
                 //获取ele
                 IWebElement ele = new FindWebElement(areInfo.ElementId, _waitUntilAction.Timeout).WebElement;
                 if (ele == null)
                 {
-                    ComArgs.SigTestStep.ResultStr = "失败";
-                    ComArgs.SigTestStep.Result = false;
-                    ComArgs.SigTestStep.ExtraInfo = $"查找元素:{areInfo.ElementId}不存在,请仔细检查对应控件";
-                    return false;
+                    if (areInfo.ActualType == "RoWebElement.Displayed")
+                    {
+                        ComArgs.SigTestStep.ResultStr = "成功";
+                        ComArgs.SigTestStep.Result = true;
+                        ComArgs.SigTestStep.ExtraInfo = $"预期值:{areInfo.ExpectedValue}, 实际值:{actvalue}, 实际类型:{areInfo.ActualType}";
+                        actvalue = true;
+                    }
+                    else
+                    {
+                        ComArgs.SigTestStep.ResultStr = "失败";
+                        ComArgs.SigTestStep.Result = false;
+                        ComArgs.SigTestStep.ExtraInfo = $"查找元素:{areInfo.ElementId}不存在,请仔细检查对应控件";
+                    }
                 }
                 else
                 {
-                    bool actvalue = new bool();
                     switch (areInfo.ActualType)
                     {
                         case "Browser.IsPageLoaded":
                             IJavaScriptExecutor jsExecutor = ComArgs.WebTestDriver as IJavaScriptExecutor;
                             string com = (string) jsExecutor?.ExecuteScript("return document.readyState");
-                            actvalue = com == "complete";
+                            actvalue = com != "complete";
                             break;
                         case "RoWebElement.Displayed":
-                            actvalue = ele.Displayed;
+                            actvalue = !ele.Displayed;
                             break;
                         case "RoWebElement.Enabled":
                             //还需要区分EasyUI的部分写法
-                            actvalue = ele.Enabled;
+                            actvalue = !ele.Enabled;
                             break;
                         case "RoWebElement.Selected":
-                            actvalue = ele.Selected;
+                            actvalue = !ele.Selected;
                             break;
                     }
                     if (actvalue)
-                    {
-                        ComArgs.SigTestStep.ResultStr = "失败";
-                        ComArgs.SigTestStep.Result = false;
-                        ComArgs.SigTestStep.ExtraInfo = $"预期值:{areInfo.ExpectedValue}, 实际值:{actvalue}, 实际类型:{areInfo.ActualType}";
-                    }
-                    else
                     {
                         ComArgs.SigTestStep.ResultStr = "成功";
                         ComArgs.SigTestStep.Result = true;
                         ComArgs.SigTestStep.ExtraInfo = $"预期值:{areInfo.ExpectedValue}, 实际值:{actvalue}, 实际类型:{areInfo.ActualType}";
                     }
-                    return actvalue;
+                    else
+                    {
+                        ComArgs.SigTestStep.ResultStr = "失败";
+                        ComArgs.SigTestStep.Result = false;
+                        ComArgs.SigTestStep.ExtraInfo = $"预期值:{areInfo.ExpectedValue}, 实际值:{actvalue}, 实际类型:{areInfo.ActualType}";
+                    }
                 }
+                return actvalue;
             }
             catch (WebDriverTimeoutException)
             {
