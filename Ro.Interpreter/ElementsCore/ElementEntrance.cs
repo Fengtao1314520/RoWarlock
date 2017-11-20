@@ -55,7 +55,7 @@ namespace Ro.Interpreter.ElementsCore
                 //如果文件存在
                 if (fileInfo.Exists)
                 {
-                    ElementAssist(sigconf, noargspath);
+                    WebElementAssist(sigconf, noargspath);
                 }
                 //如果文件不存在，说明可能就不存在，或简写为文件名，而不是全路径，也需要区别对待(暂未开发)
                 else
@@ -67,10 +67,10 @@ namespace Ro.Interpreter.ElementsCore
                         ComArgs.RoLog.WriteLog(LogStatus.LInfo, $"ElementEntrance中当前处理的路径为:{path}");
                         //开始查找对应的文件
                         fileInfo = new FileInfo(path);
-                        //如果文件存在
-                        if (fileInfo.Exists)
+                        //如果文件存在且是type为RoWeb
+                        if (fileInfo.Exists && sigconf.Type == "RoWeb")
                         {
-                            ElementAssist(sigconf, path); //使用私有方法
+                            WebElementAssist(sigconf, path); //使用私有方法
                         }
                     }
                 }
@@ -91,7 +91,7 @@ namespace Ro.Interpreter.ElementsCore
         /// </summary>
         /// <param name="sigconf">配置实体类</param>
         /// <param name="path">实际路径</param>
-        private void ElementAssist(ConfigurationFile sigconf, string path)
+        private void WebElementAssist(ConfigurationFile sigconf, string path)
         {
             ElementReference elementReference = new ElementReference();
 
