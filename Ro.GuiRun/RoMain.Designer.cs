@@ -194,6 +194,7 @@ namespace Ro.GuiRun
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(1080, 700);
             this.Controls.Add(this.OneKey);
             this.Controls.Add(this.GuiStrip);
