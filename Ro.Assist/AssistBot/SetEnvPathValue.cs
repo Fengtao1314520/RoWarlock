@@ -27,7 +27,5 @@ namespace Ro.Assist.AssistBot
                 }
             }
         }
-
-        
     }
 }
