@@ -57,13 +57,14 @@ namespace Ro.WebEvents.EventDriver
 
                             Thread.Sleep(1000);
                             //发送文件路径
-                            SendKeys.SendWait(@"^a");
+                          
+                            SendKeys.SendWait("^a");
                             Thread.Sleep(500);
-                            SendKeys.SendWait(@"{BACKSPACE}");
+                            SendKeys.SendWait("{BACKSPACE}");
                             Thread.Sleep(500);
-                            SendKeys.SendWait(_updateAction.FileValue);
+                            SendKeys.SendWait(value);
                             Thread.Sleep(500);
-                            SendKeys.SendWait(@"%o");
+                            SendKeys.SendWait("%o");
                             Thread.Sleep(500);
 
                             ComArgs.SigTestStep.ResultStr = "成功";

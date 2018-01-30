@@ -23,6 +23,9 @@ namespace Ro.WebEvents.EventDriver
 
         #region 只读Get方法
 
+        /// <summary>
+        /// 清除控件文本
+        /// </summary>
         public bool Clear
         {
             get
@@ -83,6 +86,9 @@ namespace Ro.WebEvents.EventDriver
             }
         }
 
+        /// <summary>
+        /// 点击某控件
+        /// </summary>
         public bool Click
         {
             get
@@ -134,6 +140,9 @@ namespace Ro.WebEvents.EventDriver
             }
         }
 
+        /// <summary>
+        /// 下拉选择
+        /// </summary>
         public bool Select
         {
             get
@@ -157,7 +166,7 @@ namespace Ro.WebEvents.EventDriver
                         //适配easyui
                         if (useele.TagName.Equals("input"))
                         {
-                            useele.Click(); //优先点击一次控件，让selectdiv出现
+                            useele.Click(); //优先点击一次控件，让select div出现
 
                             string xpath = "//div[@class='panel combo-p']";
                             ReadOnlyCollection<IWebElement> classeles = ComArgs.WebTestDriver.FindElements(By.XPath(xpath));
@@ -191,6 +200,9 @@ namespace Ro.WebEvents.EventDriver
                                     sel.SelectByText(value);
                                     break;
                             }
+                            
+
+                            
                         }
 
                         //还需要区分EasyUI的部分写法,不仅是value,还有其他的
@@ -247,6 +259,10 @@ namespace Ro.WebEvents.EventDriver
             }
         }
 
+
+        /// <summary>
+        /// 输入文本
+        /// </summary>
         public bool SendKeys
         {
             get
@@ -347,6 +363,12 @@ namespace Ro.WebEvents.EventDriver
             }
         }
 
+
+        /// <summary>
+        /// 聚集焦点
+        /// 过时方法
+        /// </summary>
+        [Obsolete]
         public bool Focus
         {
             get

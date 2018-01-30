@@ -98,27 +98,54 @@ namespace Ro.WebEvents.EventDriver
                     else
                     {
                         //首先要判断是否是easyui
-                        IWebElement temp = findele.WebElement.FindElement(By.XPath("following-sibling::input"));
-                        //非 EasyUI,直接处理
-                        int temple = temp?.GetAttribute("value").Length ?? findele.WebElement.Text.Length;
+                        int temple;
+                        try
+                        {
+                            IWebElement temp = findele.WebElement.FindElement(By.XPath("following-sibling::input"));
+                            temple = temp.GetAttribute("value").Length;
+                        }
+                        catch (Exception)
+                        {
+                            //非 EasyUI,直接处理
+                            temple = findele.WebElement.Text.Length;
+                        }
+                       
 
                         //查找
                         int dvalue = _waitUntilAction.Length - temple;
+                        //结果
+                        bool revaluel = false;
+
+                        if (_waitUntilAction.LenghtType == "Equal")
+                        {
+                            revaluel = (dvalue == 0);
+                        }
+                        else if (_waitUntilAction.LenghtType == "Longer")
+                        {
+                            revaluel = (dvalue <= 0);
+                        }
+
+                        else if (_waitUntilAction.LenghtType == "Lower")
+                        {
+                            revaluel = (dvalue >= 0);
+                        }
+
+
 
                         //结果
-                        bool revaluel = dvalue == 0 && _waitUntilAction.LenghtType == "Equal" || dvalue > 0 && _waitUntilAction.LenghtType == "Longer" || dvalue < 0 && _waitUntilAction.LenghtType == "Lower";
+                        //bool revaluel = dvalue == 0 && _waitUntilAction.LenghtType == "Equal" || dvalue > 0 && _waitUntilAction.LenghtType == "Longer" || dvalue < 0 && _waitUntilAction.LenghtType == "Lower";
 
                         if (revaluel)
                         {
                             ComArgs.SigTestStep.ResultStr = "成功";
                             ComArgs.SigTestStep.Result = true;
-                            ComArgs.SigTestStep.ExtraInfo = $"控件文本预期长度:{_waitUntilAction.Length}, 实际长度:{temp}";
+                            ComArgs.SigTestStep.ExtraInfo = $"控件文本预期长度:{_waitUntilAction.Length}, 实际长度:{temple}";
                         }
                         else
                         {
                             ComArgs.SigTestStep.ResultStr = "失败";
                             ComArgs.SigTestStep.Result = false;
-                            ComArgs.SigTestStep.ExtraInfo = $"控件文本预期长度:{_waitUntilAction.Length}, 实际长度:{temp}";
+                            ComArgs.SigTestStep.ExtraInfo = $"控件文本预期长度:{_waitUntilAction.Length}, 实际长度:{temple}";
                         }
 
                         return revaluel;
@@ -171,7 +198,7 @@ namespace Ro.WebEvents.EventDriver
                     }
                     return true;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     //ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return false;
@@ -199,7 +226,7 @@ namespace Ro.WebEvents.EventDriver
                     }
                     return true;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     //ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return false;
@@ -228,7 +255,7 @@ namespace Ro.WebEvents.EventDriver
                     }
                     return true;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     //ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return false;
@@ -257,7 +284,7 @@ namespace Ro.WebEvents.EventDriver
                     }
                     return true;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     //ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return false;
@@ -286,7 +313,7 @@ namespace Ro.WebEvents.EventDriver
                     }
                     return true;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     //ComArgs.WebLog.WriteLog(LogStatus.LExpt, $"类:{GetType().Name}中方法:{MethodBase.GetCurrentMethod().Name}发生异常", e.ToString());
                     return false;
@@ -395,7 +422,7 @@ namespace Ro.WebEvents.EventDriver
                             abc.Append($"{one}/");
                         }
 
-                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{abc.ToString()}, 实际类型:{areInfo.ActualType}";
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{abc}, 实际类型:{areInfo.ActualType}";
                     }
                 }
                 return re;
@@ -505,7 +532,7 @@ namespace Ro.WebEvents.EventDriver
                             abc.Append($"{one}/");
                         }
 
-                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{abc.ToString()}, 实际类型:{areInfo.ActualType}";
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{abc}, 实际类型:{areInfo.ActualType}";
                     }
                 }
                 return re;
@@ -614,7 +641,7 @@ namespace Ro.WebEvents.EventDriver
                             abc.Append($"{one}/");
                         }
 
-                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{abc.ToString()}, 实际类型:{areInfo.ActualType}";
+                        ComArgs.SigTestStep.ExtraInfo = $"控件文本预期值:{expvalue}, 实际值:{abc}, 实际类型:{areInfo.ActualType}";
                     }
                 }
                 return re;

@@ -383,12 +383,15 @@ namespace Ro.Common.UserType.ActionType
             }
             else
             {
-                var length = lengthele.Attribute(XName.Get("Length", ComArgs.WebStr));
-                var lengthtype = lengthele.Attribute(XName.Get("LenghtType", ComArgs.WebStr));
+                XAttribute length = lengthele.Attribute(XName.Get("Length", ComArgs.WebStr));
+                XAttribute lengthtype = lengthele.Attribute(XName.Get("Type", ComArgs.WebStr));
                 //长度值
                 Length = length == null ? 0 : Convert.ToInt32(length.Value);
                 //长度验证类型
                 LenghtType = lengthtype?.Value ?? "Equal";
+
+                //新获取elementid
+                ElementId = lengthele.Attribute(XName.Get("RoWebElementID", ComArgs.WebStr))?.Value ?? Empty;
             }
 
             //WaitInfo信息，包含一个预期值和一个实际等待验证的对应信息
