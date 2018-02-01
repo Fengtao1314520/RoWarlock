@@ -149,7 +149,7 @@ namespace Ro.WebEvents.EventDriver
             {
                 try
                 {
-                    var useele = new FindWebElement(_elementAction.ElementId, _elementAction.Timeout).WebElement;
+                    IWebElement useele = new FindWebElement(_elementAction.ElementId, _elementAction.Timeout).WebElement;
                     if (useele == null)
                     {
                         ComArgs.SigTestStep.ResultStr = "失败";
@@ -164,7 +164,7 @@ namespace Ro.WebEvents.EventDriver
                         string value = asArgsIntoValue.BackNormalString(_elementAction.SelectValue);
 
                         //适配easyui
-                        if (useele.TagName.Equals("input"))
+                        if (useele.TagName.Equals("input") || useele.TagName.Equals("a"))
                         {
                             useele.Click(); //优先点击一次控件，让select div出现
 
