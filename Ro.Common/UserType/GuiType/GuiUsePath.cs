@@ -96,4 +96,25 @@ namespace Ro.Common.UserType.GuiType
         public int FailNums { get; set; }
         public string Cover { get; set; }
     }
+
+
+    /// <summary>
+    /// 定时运行
+    /// </summary>
+    public class SetTimer
+    {
+        /// <summary>
+        /// 是否运行，只有是true时，才会去运行
+        /// </summary>
+        public bool IsRun { get; set; }
+        /// <summary>
+        /// 起始时间
+        /// </summary>
+        public string StartTime { get; set; }
+        /// <summary>
+        /// 间隔时间
+        /// </summary>
+        public string TimerTime { get; set; }
+
+    }
 }

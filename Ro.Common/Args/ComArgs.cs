@@ -111,6 +111,10 @@ namespace Ro.Common.Args
         /// </summary>
         public static TestStep SigTestStep;
 
+        /// <summary>
+        /// 定时运行脚本
+        /// </summary>
+        public static SetTimer SetTimer;
 
         #endregion
     }

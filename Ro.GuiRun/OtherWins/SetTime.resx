@@ -117,7 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="SetTime_metroDMButton1_Click_当前设置__0__运行时间为__1_" xml:space="preserve">
-    <value>当前设置:{0},运行时间为:{1}</value>
-  </data>
 </root>

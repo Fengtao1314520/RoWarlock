@@ -49,6 +49,7 @@ namespace Ro.GuiRun
             this.SucCover = new System.Windows.Forms.ToolStripStatusLabel();
             this.OneKey = new DMSkin.Metro.Controls.MetroButton();
             this.ResultTip = new System.Windows.Forms.ToolTip(this.components);
+            this.SetTime = new System.Windows.Forms.Button();
             this.GuiStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -190,12 +191,24 @@ namespace Ro.GuiRun
             this.OneKey.Text = "一键选择";
             this.OneKey.Click += new System.EventHandler(this.OneKey_Click);
             // 
+            // SetTime
+            // 
+            this.SetTime.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.SetTime.Location = new System.Drawing.Point(189, 7);
+            this.SetTime.Name = "SetTime";
+            this.SetTime.Size = new System.Drawing.Size(112, 28);
+            this.SetTime.TabIndex = 7;
+            this.SetTime.Text = "定时运行(关闭)";
+            this.SetTime.UseVisualStyleBackColor = true;
+            this.SetTime.Click += new System.EventHandler(this.SetTime_Click);
+            // 
             // RoMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(1080, 700);
+            this.Controls.Add(this.SetTime);
             this.Controls.Add(this.OneKey);
             this.Controls.Add(this.GuiStrip);
             this.Controls.Add(this.SelectFile);
@@ -230,6 +243,7 @@ namespace Ro.GuiRun
         private DMSkin.Metro.Controls.MetroButton OneKey;
         private System.Windows.Forms.ToolTip ResultTip;
         private System.Windows.Forms.ColumnHeader LineNum;
+        private System.Windows.Forms.Button SetTime;
     }
 }
 

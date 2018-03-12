@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
+using System.Globalization;
 using System.Threading;
+using System.Timers;
 using System.Windows.Forms;
 using DMSkin;
 using Ro.Assist.AssistBot;
@@ -103,11 +105,33 @@ namespace Ro.GuiRun
             FailSteps.Text = @"失败步骤数:0";
             SucCover.Text = @"成功率:0.00%";
 
-
-            //Start.Text = @"Stop";
             TreeNode root = RosTree.Nodes[0]; //拉取整个树形链
-            _runThread = new Thread(RunT) {IsBackground = true};
-            _runThread.Start(root);
+
+            //如果定时运行脚本是被设置的，则执行对应的功能
+            if (ComArgs.SetTimer.IsRun)
+            {
+                //带入私有函数，等待执行
+                RunTimerScript(root);
+            }
+            else
+            {
+                _runThread = new Thread(RunT) {IsBackground = true};
+                _runThread.Start(root);
+            }
+        }
+
+
+        /// <summary>
+        /// 定时器设置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SetTime_Click(object sender, EventArgs e)
+        {
+            ComArgs.RoLog.WriteLog(LogStatus.LInfo, "准备更新定时器...");
+            SetTime settime = new SetTime();
+            settime.ShowDialog(); //执行完毕后，记录对应信息
+            SetTime.Text = ComArgs.SetTimer.IsRun ? @"定时运行(开启)" : @"定时运行(关闭)";
         }
 
         #endregion
@@ -120,6 +144,7 @@ namespace Ro.GuiRun
         /// </summary>
         private Thread _runThread;
 
+
         /// <summary>
         /// 运行执行
         /// </summary>
@@ -128,15 +153,18 @@ namespace Ro.GuiRun
         {
             GuiViewEvent.UiViewResult += ChangeResult; //绑定事件
             GuiViewEvent.UiViewSteps += ChangeView; //绑定事件
-
+            Start.Text = @"暂停运行";
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "脚本执行工具执行GuiCore方法...");
             GuiCore guiCore = new GuiCore(rootNode as TreeNode); //正式开始执行脚本
-            MessageBox.Show(@"运行完成！", @"通知");
-            ComArgs.RoLog.DisposeLog(); //RoLog完成生命周期
-            GC.Collect(); //释放资源
+            if (MessageBox.Show(@"运行完成！", @"通知") == DialogResult.OK)
+            {
+                ComArgs.RoLog.DisposeLog(); //RoLog完成生命周期
+                GC.Collect(); //释放资源
 
-            GuiViewEvent.UiViewResult -= ChangeResult; //解绑事件
-            GuiViewEvent.UiViewSteps -= ChangeView; //解绑事件
+                GuiViewEvent.UiViewResult -= ChangeResult; //解绑事件
+                GuiViewEvent.UiViewSteps -= ChangeView; //解绑事件
+                Start.Text = @"开始运行";
+            }
         }
 
 
@@ -172,7 +200,54 @@ namespace Ro.GuiRun
             }
         }
 
+
+        /// <summary>
+        /// 定时运行脚本
+        /// </summary>
+        private void RunTimerScript(TreeNode root)
+        {
+            //每5分钟检查一次当前时间
+            System.Timers.Timer t = new System.Timers.Timer
+            {
+                Enabled = true,
+                Interval = 60000 * 5
+            };
+
+            //执行间隔时间,单位为毫秒  
+            t.Start();
+            t.Elapsed += OnElapsed(root);
+        }
+
+        private ElapsedEventHandler OnElapsed(TreeNode root)
+        {
+            //当前时间
+            int intHour = DateTime.Now.Hour;
+            int intMinute = DateTime.Now.Minute;
+
+            //提取待运行的时间
+            DateTimeFormatInfo dtFormat = new DateTimeFormatInfo {ShortDatePattern = "HH:mm:ss"};
+            DateTime dt = Convert.ToDateTime(ComArgs.SetTimer.StartTime, dtFormat);
+            int iHour = dt.Hour;
+            int iMinute = dt.Minute;
+
+            // 设置每天到达这个点执行脚本
+
+
+            if (intHour == iHour)
+            {
+                //时间差接近5分钟
+                if (intMinute - iMinute < 5 || intMinute - iMinute > -5)
+                {
+                    _runThread = new Thread(RunT) {IsBackground = true};
+                    _runThread.Start(root);
+                }
+            }
+
+            return null;
+        }
+
         #endregion
+
 
         #region UI更新的绑定事件
 
@@ -200,6 +275,7 @@ namespace Ro.GuiRun
                 {
                     lvi.BackColor = Color.LimeGreen;
                 }
+
                 lvi.SubItems.Add(item.LineNum.ToString());
                 lvi.SubItems.Add(item.StepName);
                 lvi.SubItems.Add(item.ControlId);
