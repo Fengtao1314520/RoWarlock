@@ -36,6 +36,7 @@
             this.metroLabel4 = new DMSkin.Metro.Controls.MetroLabel();
             this.label1 = new System.Windows.Forms.Label();
             this.Save = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // IsSetTime
@@ -65,9 +66,9 @@
             this.DefTime.Font = new System.Drawing.Font("微软雅黑", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.DefTime.Location = new System.Drawing.Point(122, 90);
             this.DefTime.Name = "DefTime";
-            this.DefTime.Size = new System.Drawing.Size(206, 27);
+            this.DefTime.Size = new System.Drawing.Size(99, 27);
             this.DefTime.TabIndex = 3;
-            this.DefTime.Text = "02:00:00";
+            this.DefTime.Text = "02:00";
             this.DefTime.WaterText = "";
             // 
             // EvertTime
@@ -118,11 +119,21 @@
             this.Save.UseVisualStyleBackColor = true;
             this.Save.Click += new System.EventHandler(this.Save_Click);
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(227, 92);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(99, 20);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "仅需填写到分";
+            // 
             // SetTime
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(426, 220);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.Save);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.metroLabel4);
@@ -150,5 +161,6 @@
         private DMSkin.Metro.Controls.MetroLabel metroLabel4;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button Save;
+        private System.Windows.Forms.Label label2;
     }
 }

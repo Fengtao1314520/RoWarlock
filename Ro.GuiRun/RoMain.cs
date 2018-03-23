@@ -13,6 +13,7 @@ using Ro.Common.UserType.ScriptsLogicType;
 using Ro.GuiRun.Assist;
 using Ro.GuiRun.OtherWins;
 using Ro.GuiRun.Resource;
+using static System.String;
 
 namespace Ro.GuiRun
 {
@@ -24,6 +25,13 @@ namespace Ro.GuiRun
             InitRosTreeIcon.RosTreeIcon(RosTree); //初始化图片资源
             ComArgs.RoLog.CreateLog("RoUIA"); //创建log
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "脚本执行工具正式开始工作..."); //起始log语句
+            ComArgs.SetTimer = new SetTimer()
+            {
+                IsRun = false,
+                StartTime=Empty,
+                TimerTime=Empty
+            }; //初始化
+
         }
 
         #region UI事件
@@ -106,7 +114,7 @@ namespace Ro.GuiRun
             SucCover.Text = @"成功率:0.00%";
 
             TreeNode root = RosTree.Nodes[0]; //拉取整个树形链
-
+            Start.Text = @"暂停运行";
             //如果定时运行脚本是被设置的，则执行对应的功能
             if (ComArgs.SetTimer.IsRun)
             {
@@ -151,9 +159,10 @@ namespace Ro.GuiRun
         /// <param name="rootNode">树形结构</param>
         private void RunT(object rootNode)
         {
+            
+
             GuiViewEvent.UiViewResult += ChangeResult; //绑定事件
             GuiViewEvent.UiViewSteps += ChangeView; //绑定事件
-            Start.Text = @"暂停运行";
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "脚本执行工具执行GuiCore方法...");
             GuiCore guiCore = new GuiCore(rootNode as TreeNode); //正式开始执行脚本
             if (MessageBox.Show(@"运行完成！", @"通知") == DialogResult.OK)

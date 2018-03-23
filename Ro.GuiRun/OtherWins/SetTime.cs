@@ -11,7 +11,7 @@ namespace Ro.GuiRun.OtherWins
         public SetTime()
         {
             InitializeComponent();
-            ComArgs.SetTimer = new SetTimer(); //初始化
+            
         }
 
 
@@ -30,7 +30,7 @@ namespace Ro.GuiRun.OtherWins
                 ComArgs.SetTimer.TimerTime = EvertTime.Text;
                 if (MessageBox.Show($@"当前设置:{IsSetTime.Checked},运行时间为:{DefTime.Text}") == DialogResult.OK)
                 {
-                    this.Close();
+                    Close();
                 }
             }
             else
