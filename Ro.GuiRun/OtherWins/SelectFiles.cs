@@ -12,7 +12,7 @@ namespace Ro.GuiRun.OtherWins
         public SelectFiles()
         {
             InitializeComponent();
-            ComArgs.GuiUsePath = new GuiUsePath();
+           
         }
 
 

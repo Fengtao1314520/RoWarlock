@@ -28,10 +28,15 @@ namespace Ro.GuiRun
             ComArgs.SetTimer = new SetTimer()
             {
                 IsRun = false,
-                StartTime=Empty,
-                TimerTime=Empty
+                StartTime = Empty,
+                TimerTime = Empty
             }; //初始化
-
+            ComArgs.GuiUsePath = new GuiUsePath
+            {
+                RosPath = Empty,
+                RocPath = Empty,
+                RoiPath = Empty
+            }; //初始化
         }
 
         #region UI事件
@@ -61,10 +66,17 @@ namespace Ro.GuiRun
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "准备勾选ros/roi/roc文件夹...");
             SelectFiles selectFiles = new SelectFiles();
             selectFiles.ShowDialog(); //执行完毕后，再更新rostree
-            GetAllRosFile getAllRosFile = new GetAllRosFile(ComArgs.GuiUsePath.RosPath);
-            RosTree.Nodes.Add(getAllRosFile.RootNode);
-            RosTree.ExpandAll(); //全展开
-            CheckTreeView.CheckAllTreeNodes(getAllRosFile.RootNode); //默认全部勾选
+            if (ComArgs.GuiUsePath.RosPath != Empty)
+            {
+                GetAllRosFile getAllRosFile = new GetAllRosFile(ComArgs.GuiUsePath.RosPath);
+                RosTree.Nodes.Add(getAllRosFile.RootNode);
+                RosTree.ExpandAll(); //全展开
+                CheckTreeView.CheckAllTreeNodes(getAllRosFile.RootNode); //默认全部勾选
+            }
+            else
+            {
+                MessageBox.Show(@"请选择正确的路径", @"警告");
+            }
         }
 
 
@@ -159,8 +171,6 @@ namespace Ro.GuiRun
         /// <param name="rootNode">树形结构</param>
         private void RunT(object rootNode)
         {
-            
-
             GuiViewEvent.UiViewResult += ChangeResult; //绑定事件
             GuiViewEvent.UiViewSteps += ChangeView; //绑定事件
             ComArgs.RoLog.WriteLog(LogStatus.LInfo, "脚本执行工具执行GuiCore方法...");
