@@ -1,5 +1,13 @@
 # RoWarlock User Guide
 
+Update 2019-04-05:
+
+I'm a chinese developer,my company doesn't execute the 996 work schedule, but in my country, lots of company execute this work schedule, we lost our time to working on the job
+Please support this revolution!!!
+
+<a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg" alt="996.icu" /></a>
+
+
 RoWarlock is an Automation tool base on UI, Using Selenium(Web), MSUIAutomation(Client), Appium(Mobile) as the event-driven.
 
 [RoWarlock](https://github.com/Fengtao1314520/RoWarlock)
